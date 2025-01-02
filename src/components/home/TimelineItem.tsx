@@ -108,6 +108,7 @@ export function TimelineItem({
                 "ml-8 rounded-xl p-3 transition-all duration-300",
                 getCardStyles()
               )}
+              onClick={handleClick}
             >
               <div className="flex items-center gap-3">
                 <div className={cn("h-10 w-1 rounded-full", getBarStyles())} />
