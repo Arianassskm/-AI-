@@ -5,10 +5,17 @@ import { ScanTypeSelector } from "./scanner/ScanTypeSelector";
 import { MedicineScanGuide } from "./scanner/MedicineScanGuide";
 import { PrescriptionScanGuide } from "./scanner/PrescriptionScanGuide";
 import { CreatePlanModal } from "./plans/CreatePlanModal";
+import MedicineConfirmationModal from "./MedicineConfirmationModal";
 import { useNavigate } from "react-router-dom";
 import type { NewPlanData } from "./plans/CreatePlanModal";
 import { useLocalStorageListener } from "../hooks/useLocalStorage";
 import type { MedicationPlan } from "../types/medicationPlan";
+import {
+  accessToken,
+  extractTask,
+  pollingTask,
+  ExtractResult,
+} from "../services/ocrService";
 
 interface CreateActionSheetProps {
   isOpen: boolean;
@@ -20,13 +27,84 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
   const [showMedicineScan, setShowMedicineScan] = useState(false);
   const [showPrescriptionScan, setShowPrescriptionScan] = useState(false);
   const [showCreatePlan, setShowCreatePlan] = useState(false);
+  const [showMedicineConfirmation, setShowMedicineConfirmation] =
+    useState(false);
+  const [passMedicineInfo, setPassMedicineInfo] = useState({
+    name: "",
+    specification: "",
+    manufacturer: "",
+    expiryDate: "",
+    batchNumber: "",
+    packageInfo: "",
+  });
 
   const [plans, setPlans] = useLocalStorageListener<MedicationPlan[]>(
     "plans",
     []
   );
+  const [token, setToken] = useLocalStorageListener<string>("ocr_token", "");
 
   const navigate = useNavigate();
+
+  async function extractPictures(token: string, capturedPhotos: any[]) {
+    let taskIds = [];
+    for (const pic of capturedPhotos) {
+      const ret = await extractTask(
+        token,
+        pic,
+        "440691ca34f59687432e3987f6241c1.jpg"
+      );
+
+      console.log("任务id", ret.result.taskId);
+      taskIds.push(ret.result.taskId);
+    }
+    // 图片抽取
+    let result: ExtractResult[] = [];
+    for (const task of taskIds) {
+      console.log("开始查询", task);
+      const ret = await pollingTask(token, task);
+      console.log("ret", ret);
+      result = result.concat(ret);
+    }
+
+    // 处理数据
+    console.log("图片抽取结果", JSON.stringify(result));
+    let data = {};
+    result.forEach((item) => {
+      const keys = Object.keys(item.data.singleKey);
+
+      for (const key of keys) {
+        const value = item.data.singleKey[key];
+        let words = "";
+        for (const val of value) {
+          words = words.concat(val.word);
+        }
+        console.log(`Key: ${key}, Value:${words}`);
+        data[key] = words;
+      }
+    });
+    console.log(data);
+    console.log("传入", {
+      name: data["名称"],
+      specification: data["规格"],
+      manufacturer: data["生产企业"],
+      expiryDate: data["过期日期"],
+      batchNumber: data["批次"],
+      packageInfo: data["包装"],
+    });
+    // 跳转到药品确认/处方确认页面
+    setPassMedicineInfo({
+      name: data["名称"],
+      specification: data["规格"],
+      manufacturer: data["生产企业"],
+      expiryDate: data["过期日期"],
+      batchNumber: data["批次"],
+      packageInfo: data["包装"],
+    });
+
+    setShowMedicineConfirmation(true);
+    // onClose();
+  }
 
   const handleScanTypeSelect = (type: "medicine" | "prescription") => {
     setShowScanSelector(false);
@@ -42,6 +120,32 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
     setShowPrescriptionScan(false);
     console.log("Captured images:", images);
     onClose();
+  };
+
+  /**
+   * 扫描药品
+   * @param images
+   */
+  const handleMedicineScanComplete = async (images: string[]) => {
+    try {
+      setShowMedicineScan(false);
+      setShowPrescriptionScan(false);
+      console.log("Captured images:", images);
+      if (images.length > 0) {
+        if (token) {
+          extractPictures(token, images);
+        } else {
+          alert("token过期");
+          // 刷新token
+          const ret = await accessToken();
+          console.log("token", ret.access_token);
+          setToken(ret.access_token);
+          extractPictures(ret.access_token, images);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to extract medicine data:", e);
+    }
   };
 
   const handleCreatePlan = async (planData: NewPlanData) => {
@@ -208,7 +312,7 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
       <MedicineScanGuide
         isOpen={showMedicineScan}
         onClose={() => setShowMedicineScan(false)}
-        onComplete={handleScanComplete}
+        onComplete={handleMedicineScanComplete}
       />
 
       <PrescriptionScanGuide
@@ -222,6 +326,13 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
         onClose={() => setShowCreatePlan(false)}
         onSubmit={handleCreatePlan}
       />
+
+      <MedicineConfirmationModal
+        isOpen={showMedicineConfirmation}
+        medicineInfo={passMedicineInfo}
+        onClose={() => {}}
+        onConfirm={() => {}}
+      ></MedicineConfirmationModal>
     </>
   );
 }

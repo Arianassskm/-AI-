@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { ocrService } from '../services/ocrService';
-import { validateImage } from '../utils/validation';
-import { dataURLtoFile } from '../utils/imageUtils';
+import { useState } from "react";
+import { ocrService } from "../services/ocrService";
+import { validateImage } from "../utils/validation";
+import { dataURLtoFile } from "../utils/imageUtils";
 
 export function useOCR() {
   const [loading, setLoading] = useState(false);
@@ -14,7 +14,7 @@ export function useOCR() {
 
     try {
       // 验证图片
-      const file = dataURLtoFile(imageData, 'image.jpg');
+      const file = dataURLtoFile(imageData, "image.jpg");
       const validationError = validateImage(file);
       if (validationError) {
         throw new Error(validationError);
@@ -25,7 +25,7 @@ export function useOCR() {
       setResults(textResults);
       return textResults;
     } catch (err) {
-      const message = err instanceof Error ? err.message : '识别失败，请重试';
+      const message = err instanceof Error ? err.message : "识别失败，请重试";
       setError(message);
       return null;
     } finally {
@@ -43,6 +43,6 @@ export function useOCR() {
     error,
     results,
     recognizeImage,
-    clearResults
+    clearResults,
   };
 }
