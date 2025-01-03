@@ -6,6 +6,7 @@ import { MedicineScanGuide } from "./scanner/MedicineScanGuide";
 import { PrescriptionScanGuide } from "./scanner/PrescriptionScanGuide";
 import { CreatePlanModal } from "./plans/CreatePlanModal";
 import MedicineConfirmationModal from "./MedicineConfirmationModal";
+import { MedicineInfo } from "./MedicineConfirmationModal";
 import { useNavigate } from "react-router-dom";
 import type { NewPlanData } from "./plans/CreatePlanModal";
 import { useLocalStorageListener } from "../hooks/useLocalStorage";
@@ -45,6 +46,10 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
     []
   );
   const [token, setToken] = useLocalStorageListener<string>("ocr_token", "");
+  const [medicines, setMedicines] = useLocalStorageListener<MedicineInfo[]>(
+    "medicines",
+    []
+  );
 
   const navigate = useNavigate();
 
@@ -58,15 +63,12 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
         "440691ca34f59687432e3987f6241c1.jpg"
       );
 
-      console.log("任务id", ret.result.taskId);
       taskIds.push(ret.result.taskId);
     }
     // 图片抽取
     let result: ExtractResult[] = [];
     for (const task of taskIds) {
-      console.log("开始查询", task);
       const ret = await pollingTask(token, task);
-      console.log("ret", ret);
       result = result.concat(ret);
     }
 
@@ -107,7 +109,6 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
 
     setIsLoading(false);
     setShowMedicineConfirmation(true);
-    // onClose();
   }
 
   const handleScanTypeSelect = (type: "medicine" | "prescription") => {
@@ -154,6 +155,30 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
 
   const handleMedicineConfirmationConfirm = (medicineInfo, dosage) => {
     console.log("添加到药品", medicineInfo, dosage);
+    const medi = {
+      ...medicineInfo,
+      id: medicines.length + 1,
+      progress: Math.floor(Math.random() * 100),
+      color: "bg-amber-500",
+      imageUrl:
+        "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=500&h=500&fit=crop",
+      currentQuantity: dosage.amount,
+      totalQuantity: Math.floor(Math.random() * 500),
+      unit: dosage.unit,
+    };
+    console.log(medi);
+    setPassMedicineInfo({
+      name: "",
+      specification: "",
+      manufacturer: "",
+      expiryDate: "",
+      batchNumber: "",
+      packageInfo: "",
+    });
+
+    setShowMedicineConfirmation(false);
+    setMedicines([medi].concat(medicines));
+    onClose();
   };
 
   const handleMedicineConfirmationClose = () => {

@@ -3,13 +3,20 @@
 import { useState, useEffect } from "react";
 import { Camera, X } from "lucide-react";
 
-interface MedicineInfo {
+export interface MedicineInfo {
+  id: number;
   name: string;
   specification: string;
   manufacturer: string;
   expiryDate: string;
   batchNumber: string;
   packageInfo: string;
+  progress?: number;
+  color?: string;
+  imageUrl?: string;
+  currentQuantity?: number;
+  totalQuantity?: number;
+  unit?: string;
 }
 
 interface MedicineConfirmationModalProps {
@@ -29,6 +36,7 @@ export default function MedicineConfirmationModal({
   medicineInfo: initialMedicineInfo,
 }: MedicineConfirmationModalProps) {
   const [medicineInfo, setMedicineInfo] = useState<MedicineInfo>({
+    id: 1,
     name: "",
     specification: "",
     manufacturer: "",

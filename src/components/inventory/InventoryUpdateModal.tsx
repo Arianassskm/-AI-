@@ -1,19 +1,20 @@
-import { useState } from 'react';
-import { X, Plus, Minus, AlertCircle } from 'lucide-react';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
+import { useState } from "react";
+import { X, Plus, Minus, AlertCircle } from "lucide-react";
+import { Card } from "../ui/Card";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
 
 interface InventoryUpdateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (data: {
+    id: number;
     quantity: number;
-    type: 'add' | 'subtract';
+    type: "add" | "subtract";
     reason?: string;
   }) => void;
   medication: {
-    id: string;
+    id: number;
     name: string;
     currentQuantity: number;
     totalQuantity: number;
@@ -25,17 +26,18 @@ export function InventoryUpdateModal({
   isOpen,
   onClose,
   onConfirm,
-  medication
+  medication,
 }: InventoryUpdateModalProps) {
-  const [type, setType] = useState<'add' | 'subtract'>('add');
+  const id = medication.id;
+  const [type, setType] = useState<"add" | "subtract">("add");
   const [quantity, setQuantity] = useState(1);
-  const [reason, setReason] = useState('');
+  const [reason, setReason] = useState("");
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onConfirm({ quantity, type, reason });
+    onConfirm({ id, quantity, type, reason });
   };
 
   return (
@@ -54,11 +56,14 @@ export function InventoryUpdateModal({
         <form onSubmit={handleSubmit} className="p-4 space-y-6">
           {/* Current Status */}
           <Card gradient>
-            <h3 className="font-medium text-gray-800 mb-2">{medication.name}</h3>
+            <h3 className="font-medium text-gray-800 mb-2">
+              {medication.name}
+            </h3>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-500">当前库存</span>
               <span className="font-medium text-gray-800">
-                {medication.currentQuantity}/{medication.totalQuantity} {medication.unit}
+                {medication.currentQuantity}/{medication.totalQuantity}{" "}
+                {medication.unit}
               </span>
             </div>
           </Card>
@@ -67,11 +72,11 @@ export function InventoryUpdateModal({
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setType('add')}
+              onClick={() => setType("add")}
               className={`p-4 rounded-xl text-center transition-all ${
-                type === 'add'
-                  ? 'bg-blue-50 text-blue-700 ring-2 ring-blue-500'
-                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                type === "add"
+                  ? "bg-blue-50 text-blue-700 ring-2 ring-blue-500"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
             >
               <Plus className="w-5 h-5 mx-auto mb-1" />
@@ -79,11 +84,11 @@ export function InventoryUpdateModal({
             </button>
             <button
               type="button"
-              onClick={() => setType('subtract')}
+              onClick={() => setType("subtract")}
               className={`p-4 rounded-xl text-center transition-all ${
-                type === 'subtract'
-                  ? 'bg-amber-50 text-amber-700 ring-2 ring-amber-500'
-                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                type === "subtract"
+                  ? "bg-amber-50 text-amber-700 ring-2 ring-amber-500"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
             >
               <Minus className="w-5 h-5 mx-auto mb-1" />
@@ -100,7 +105,9 @@ export function InventoryUpdateModal({
               <Input
                 type="number"
                 min={1}
-                max={type === 'subtract' ? medication.currentQuantity : undefined}
+                max={
+                  type === "subtract" ? medication.currentQuantity : undefined
+                }
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
                 className="flex-1"
@@ -117,14 +124,14 @@ export function InventoryUpdateModal({
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder={type === 'add' ? '请输入入库原因' : '请输入出库原因'}
+              placeholder={type === "add" ? "请输入入库原因" : "请输入出库原因"}
               rows={3}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Warning */}
-          {type === 'subtract' && quantity > medication.currentQuantity && (
+          {type === "subtract" && quantity > medication.currentQuantity && (
             <div className="flex items-center gap-2 text-red-600 bg-red-50 rounded-lg p-3">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <p className="text-sm">出库数量不能大于当前库存</p>
@@ -135,9 +142,11 @@ export function InventoryUpdateModal({
             type="submit"
             size="lg"
             className="w-full"
-            disabled={type === 'subtract' && quantity > medication.currentQuantity}
+            disabled={
+              type === "subtract" && quantity > medication.currentQuantity
+            }
           >
-            确认{type === 'add' ? '入库' : '出库'}
+            确认{type === "add" ? "入库" : "出库"}
           </Button>
         </form>
       </div>
