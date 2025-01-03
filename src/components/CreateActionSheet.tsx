@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import type { NewPlanData } from "./plans/CreatePlanModal";
 import { useLocalStorageListener } from "../hooks/useLocalStorage";
 import type { MedicationPlan } from "../types/medicationPlan";
+import LoadingOverlay from "./loading/LoadingOverlay";
 import {
   accessToken,
   extractTask,
@@ -37,6 +38,7 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
     batchNumber: "",
     packageInfo: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const [plans, setPlans] = useLocalStorageListener<MedicationPlan[]>(
     "plans",
@@ -46,7 +48,8 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
 
   const navigate = useNavigate();
 
-  async function extractPictures(token: string, capturedPhotos: any[]) {
+  async function extractPictures(token: string, capturedPhotos: string[]) {
+    setIsLoading(true);
     let taskIds = [];
     for (const pic of capturedPhotos) {
       const ret = await extractTask(
@@ -102,6 +105,7 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
       packageInfo: data["包装"],
     });
 
+    setIsLoading(false);
     setShowMedicineConfirmation(true);
     // onClose();
   }
@@ -146,6 +150,15 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
     } catch (e) {
       console.error("Failed to extract medicine data:", e);
     }
+  };
+
+  const handleMedicineConfirmationConfirm = (medicineInfo, dosage) => {
+    console.log("添加到药品", medicineInfo, dosage);
+  };
+
+  const handleMedicineConfirmationClose = () => {
+    setShowMedicineConfirmation(false);
+    onClose();
   };
 
   const handleCreatePlan = async (planData: NewPlanData) => {
@@ -330,9 +343,11 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
       <MedicineConfirmationModal
         isOpen={showMedicineConfirmation}
         medicineInfo={passMedicineInfo}
-        onClose={() => {}}
-        onConfirm={() => {}}
+        onClose={handleMedicineConfirmationClose}
+        onConfirm={handleMedicineConfirmationConfirm}
       ></MedicineConfirmationModal>
+
+      <LoadingOverlay isLoading={isLoading} />
     </>
   );
 }

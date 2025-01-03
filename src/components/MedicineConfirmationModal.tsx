@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { ChevronLeft, Camera, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Camera, X } from "lucide-react";
 
 interface MedicineInfo {
   name: string;
