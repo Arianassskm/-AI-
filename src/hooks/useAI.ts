@@ -32,13 +32,18 @@ export function useAI() {
 
   const generateMedicationGuide = async (
     medication: string,
-    condition: string
+    experience: string,
+    levelOfTheGuidelines: string
   ): Promise<string | null> => {
     setLoading(true);
     setError(null);
 
     try {
-      const prompt = generateMedicationPrompt(medication, condition);
+      const prompt = generateMedicationPrompt(
+        medication,
+        experience,
+        levelOfTheGuidelines
+      );
       const response = await sendAIRequest(prompt);
       return response;
     } catch (err) {
