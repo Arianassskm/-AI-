@@ -42,7 +42,7 @@ export function MultiPhotoCapture({
       stopCamera();
       if (nav) nav.style.display = 'block';
     };
-  }, []);
+  }, [startCamera, stopCamera]);
 
   const handlePhotoCapture = async () => {
     const photo = await takePhoto();

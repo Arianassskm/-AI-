@@ -112,7 +112,7 @@ export function ChronicDiseaseAssistant({ isOpen, onClose }: ChronicDiseaseAssis
         </div>
 
         {/* Content */}
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
           {step === 1 && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 text-gray-800">
@@ -140,33 +140,35 @@ export function ChronicDiseaseAssistant({ isOpen, onClose }: ChronicDiseaseAssis
             </div>
           )}
 
-          {step === 2 && (
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 text-gray-800">
-                <Calendar className="w-5 h-5" />
-                <h3 className="font-medium">当前服药记录</h3>
-              </div>
-              
-              <MedicationHistorySelector
-                selectedPlans={selectedPlans}
-                onTogglePlan={togglePlan}
-              />
+            {step === 2 && (
+                <div className="flex flex-col h-full">
+                    <div className="flex items-center gap-2 text-gray-800">
+                        <Calendar className="w-5 h-5" />
+                        <h3 className="font-medium">当前服药记录</h3>
+                    </div>
+                    
+                    <div className="flex-grow overflow-y-auto max-h-40">
+                        <MedicationHistorySelector
+                            selectedPlans={selectedPlans}
+                            onTogglePlan={togglePlan}
+                        />
+                    </div>
 
-              <div className="relative">
-                <textarea
-                  value={medicationHistory}
-                  onChange={(e) => setMedicationHistory(e.target.value)}
-                  placeholder="请输入或使用语音描述其他服用的药物..."
-                  className="w-full h-40 p-4 rounded-xl bg-gray-50 text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-green-500 pr-12"
-                />
-                <VoiceInput
-                  onTranscript={handleVoiceInput}
-                  isListening={isListening}
-                  onToggleListening={() => setIsListening(!isListening)}
-                />
-              </div>
-            </div>
-          )}
+                    <div className="relative flex-grow flex flex-col mt-4">
+                        <textarea
+                            value={medicationHistory}
+                            onChange={(e) => setMedicationHistory(e.target.value)}
+                            placeholder="请输入或使用语音描述其他服用的药物..."
+                            className="w-full flex-grow p-4 rounded-xl bg-gray-50 text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-green-500 pr-12"
+                        />
+                        <VoiceInput
+                            onTranscript={handleVoiceInput}
+                            isListening={isListening}
+                            onToggleListening={() => setIsListening(!isListening)}
+                        />
+                    </div>
+                </div>
+            )}
 
           {step === 3 && (
             <div className="space-y-6">
