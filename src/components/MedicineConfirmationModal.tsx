@@ -99,35 +99,41 @@ export default function MedicineConfirmationModal({
             </div>
           </div>
 
-          {Object.entries(medicineInfo).map(([key, value]) => (
-            <div key={key}>
-              <label
-                htmlFor={key}
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {key === "name"
-                  ? "药品名称"
-                  : key === "specification"
-                  ? "规格"
-                  : key === "manufacturer"
-                  ? "生产厂家"
-                  : key === "expiryDate"
-                  ? "有效期"
-                  : key === "batchNumber"
-                  ? "批号"
-                  : "包装信息"}
-              </label>
-              <input
-                id={key}
-                type="text"
-                value={value}
-                onChange={(e) =>
-                  handleInputChange(key as keyof MedicineInfo, e.target.value)
-                }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-          ))}
+          {Object.entries(medicineInfo).map(([key, value]) =>
+            key === "id" ? (
+              ""
+            ) : (
+              <div key={key}>
+                <label
+                  htmlFor={key}
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  {key === "name"
+                    ? "药品名称"
+                    : key === "specification"
+                    ? "规格"
+                    : key === "manufacturer"
+                    ? "生产厂家"
+                    : key === "expiryDate"
+                    ? "有效期"
+                    : key === "batchNumber"
+                    ? "批号"
+                    : key === "id"
+                    ? "ID"
+                    : "包装信息"}
+                </label>
+                <input
+                  id={key}
+                  type="text"
+                  value={value}
+                  onChange={(e) =>
+                    handleInputChange(key as keyof MedicineInfo, e.target.value)
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            )
+          )}
 
           <div>
             <label
