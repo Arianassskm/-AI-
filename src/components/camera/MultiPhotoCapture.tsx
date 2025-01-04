@@ -104,10 +104,18 @@ export function MultiPhotoCapture({
 
   const handleComplete = () => {
     if (capturedPhotos.length > 0) {
-      onCapture(capturedPhotos);
+        onCapture(capturedPhotos);
     }
-    handleClose();
-  };
+    // 检查是否在手机浏览器上
+    if (!isMobileBrowser()) {
+        handleClose();
+    }
+};
+
+// 检查是否在手机浏览器上的辅助函数
+const isMobileBrowser = () => {
+    return /Mobi|Android/i.test(navigator.userAgent);
+};
 
   const handleClose = () => {
     stopCamera();

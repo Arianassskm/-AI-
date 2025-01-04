@@ -69,16 +69,17 @@ export default function MedicineConfirmationModal({
   };
 
   const calculateConsumption = (): string => {
+    if (!medicineInfo || !medicineInfo.packageInfo) return "无法计算";
     const match = medicineInfo.packageInfo.match(/(\d+)\s*[*×]\s*(\d+)/);
     if (!match) return "无法计算";
-
     const totalUnits = parseInt(match[1]) * parseInt(match[2]);
-    const dailyConsumption =
-      parseInt(dosage.amount) * parseInt(dosage.frequency);
+    if (isNaN(totalUnits) || !dosage || isNaN(parseInt(dosage.amount)) || isNaN(parseInt(dosage.frequency))) return "无法计算";
+    const dailyConsumption = parseInt(dosage.amount) * parseInt(dosage.frequency);
+    if (dailyConsumption === 0) return "无法计算";
     const daysLeft = Math.floor(totalUnits / dailyConsumption);
 
     return `约${daysLeft}天`;
-  };
+};
 
   if (!isOpen) return null;
 
