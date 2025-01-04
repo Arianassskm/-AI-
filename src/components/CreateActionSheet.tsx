@@ -140,7 +140,6 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
         if (token) {
           extractPictures(token, images);
         } else {
-          alert("token过期");
           // 刷新token
           const ret = await accessToken();
           console.log("token", ret.access_token);
