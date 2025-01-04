@@ -54,7 +54,7 @@ export function SpacePage() {
           <div className="overflow-x-auto">
             <div className="flex gap-4 pb-4 -mx-4 px-4 scrollbar-hide">
               {medicines.map((medicine) => (
-                <MedicineCard key={medicine.name} {...medicine} />
+                <MedicineCard key={medicine.id} {...medicine} />
               ))}
             </div>
           </div>
