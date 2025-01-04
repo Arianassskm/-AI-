@@ -8,13 +8,14 @@ import type {
   MedicationGuide,
 } from "../../types/medicationGuide";
 import { useAI } from "../../hooks/useAI";
+import LoadingOverlay from "../loading/LoadingOverlay";
 
 export function MedicationGuideFlow() {
   const [selectedMedication, setSelectedMedication] =
     useState<MedicationInfo | null>(null);
-  const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const { generateMedicationGuide } = useAI();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSelectType = (type: GuideType) => {
     // 这里应该从实际数据中获取药品信息
@@ -30,7 +31,7 @@ export function MedicationGuideFlow() {
   const handleSubmitContext = async (context: UserContext) => {
     if (!selectedMedication) return;
 
-    setLoading(true);
+    setIsLoading(true);
     try {
       const result = await generateMedicationGuide(
         selectedMedication.name,
@@ -41,7 +42,7 @@ export function MedicationGuideFlow() {
     } catch (error) {
       console.error("Failed to generate guide:", error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -56,6 +57,7 @@ export function MedicationGuideFlow() {
           为{selectedMedication.name}生成个性化指引
         </h3>
         <UserContextForm onSubmit={handleSubmitContext} />
+        <LoadingOverlay isLoading={isLoading} />
       </div>
     );
   }

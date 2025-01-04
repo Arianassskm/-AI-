@@ -8,6 +8,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { useAI } from "../hooks/useAI";
+import LoadingOverlay from "./loading/LoadingOverlay";
 
 interface MedicationCabinetAssessmentProps {
   isOpen: boolean;
@@ -55,6 +56,7 @@ export function MedicationCabinetAssessment({
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
   const { pillboxSssessments, loading, error } = useAI();
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
 
@@ -88,6 +90,7 @@ export function MedicationCabinetAssessment({
       storageConditions: Array.from(selectedConditions),
     };
     console.log("Assessment Data:", assessment);
+    setIsLoading(true);
     try {
       const result = await pillboxSssessments(
         familyMembers.length > 0 ? familyMembers.join(",") : "",
@@ -95,8 +98,11 @@ export function MedicationCabinetAssessment({
         storageSpace + "",
         storageConditions.length > 0 ? storageConditions.join(",") : ""
       );
+      setIsLoading(false);
       setAnalysisResult(result);
-    } catch (error) {}
+    } catch (error) {
+      setIsLoading(false);
+    }
 
     // onClose();
   };
@@ -290,6 +296,7 @@ export function MedicationCabinetAssessment({
           </div>
         )}
       </div>
+      <LoadingOverlay isLoading={isLoading} />
     </div>
   );
 }

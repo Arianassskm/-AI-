@@ -4,6 +4,7 @@ import { VoiceInput } from "./VoiceInput";
 import { StepNavigation } from "./StepNavigation";
 import { MedicationHistorySelector } from "./MedicationHistorySelector";
 import { useAI } from "../hooks/useAI";
+import LoadingOverlay from "./loading/LoadingOverlay";
 
 interface ChronicDiseaseAssistantProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ export function ChronicDiseaseAssistant({
 
   const { chronicDiseaseFollowup } = useAI();
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (isListening) {
@@ -82,6 +84,7 @@ export function ChronicDiseaseAssistant({
       currentCondition,
     };
     console.log("Generated Report:", report);
+    setIsLoading(true);
     try {
       const result = await chronicDiseaseFollowup(
         diseaseType.length > 0 ? diseaseType.join(",") : "",
@@ -89,11 +92,13 @@ export function ChronicDiseaseAssistant({
         medicalHistory,
         currentCondition
       );
+      setIsLoading(false);
       if (result) {
         setAnalysisResult(result);
       }
     } catch (e) {
       console.error("Failed to generate report:", e);
+      setIsLoading(false);
     }
   };
 
@@ -255,6 +260,8 @@ export function ChronicDiseaseAssistant({
           </div>
         )}
       </div>
+
+      <LoadingOverlay isLoading={isLoading} />
     </div>
   );
 }
