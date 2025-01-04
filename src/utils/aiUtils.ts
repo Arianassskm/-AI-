@@ -46,7 +46,7 @@ export async function sendAIRequest(
  */
 export function generateMedicationPrompt(
   medication: string,
-  experience: string;
+  experience: string,
   levelOfTheGuidelines: string
 ): string {
   return `作为一个专业的医疗AI助手,请为以下用药情况提供专业的指导建议:
