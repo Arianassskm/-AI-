@@ -1,5 +1,11 @@
-import { useState } from 'react';
-import { sendAIRequest, generateMedicationPrompt, generateInteractionPrompt } from '../utils/aiUtils';
+import { useState } from "react";
+import {
+  sendAIRequest,
+  generateMedicationPrompt,
+  generateInteractionPrompt,
+  generateDiseasePrompt,
+  generatePillboxPrompt,
+} from "../utils/aiUtils";
 
 export function useAI() {
   const [loading, setLoading] = useState(false);
@@ -17,7 +23,7 @@ export function useAI() {
       const response = await sendAIRequest(prompt);
       return response;
     } catch (err) {
-      setError(err instanceof Error ? err.message : '分析失败，请稍后重试');
+      setError(err instanceof Error ? err.message : "分析失败，请稍后重试");
       return null;
     } finally {
       setLoading(false);
@@ -36,7 +42,53 @@ export function useAI() {
       const response = await sendAIRequest(prompt);
       return response;
     } catch (err) {
-      setError(err instanceof Error ? err.message : '生成指南失败，请稍后重试');
+      setError(err instanceof Error ? err.message : "生成指引失败，请稍后重试");
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const chronicDiseaseFollowup = async (
+    diseaseType: string,
+    medicines: string,
+    medicalHistory: string,
+    physicalCondition: string
+  ) => {
+    try {
+      const prompt = generateDiseasePrompt(
+        diseaseType,
+        medicines,
+        medicalHistory,
+        physicalCondition
+      );
+      const response = await sendAIRequest(prompt);
+      return response;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "生成失败，请稍后重试");
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const pillboxSssessments = async (
+    familyMember: string,
+    budget: string,
+    space: string,
+    condition: string
+  ) => {
+    try {
+      const prompt = generatePillboxPrompt(
+        familyMember,
+        budget,
+        space,
+        condition
+      );
+      const response = await sendAIRequest(prompt);
+      return response;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "生成失败，请稍后重试");
       return null;
     } finally {
       setLoading(false);
@@ -47,6 +99,8 @@ export function useAI() {
     loading,
     error,
     analyzeMedicationInteraction,
-    generateMedicationGuide
+    generateMedicationGuide,
+    chronicDiseaseFollowup,
+    pillboxSssessments,
   };
 }
