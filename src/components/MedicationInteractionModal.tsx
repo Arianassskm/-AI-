@@ -97,10 +97,10 @@ export function MedicationInteractionModal({ isOpen, onClose }: MedicationIntera
         )}
 
         {analysisResult && (
-          <div className="p-4 bg-blue-50 rounded-xl">
-            <h4 className="font-medium text-gray-800 mb-2">分析结果</h4>
-            <p className="text-sm text-gray-600 whitespace-pre-line">{analysisResult}</p>
-          </div>
+         <div className="p-4 bg-blue-50 rounded-xl shadow-md max-h-40 overflow-y-auto">
+         <h4 className="font-medium text-gray-800 mb-2">分析结果</h4>
+         <p className="text-sm text-gray-600 whitespace-pre-line">{analysisResult}</p>
+     </div>
         )}
 
         <button
