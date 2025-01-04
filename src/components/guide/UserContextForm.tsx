@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import type { UserContext } from '../../types/medicationGuide';
+import { useState } from "react";
+import { Card } from "../ui/Card";
+import { Button } from "../ui/Button";
+import type { UserContext } from "../../types/medicationGuide";
 
 interface UserContextFormProps {
   onSubmit: (context: UserContext) => void;
@@ -9,10 +9,10 @@ interface UserContextFormProps {
 
 export function UserContextForm({ onSubmit }: UserContextFormProps) {
   const [context, setContext] = useState<UserContext>({
-    experience: 'none',
+    experience: "首次使用",
     preferences: {
-      detailLevel: 'basic'
-    }
+      detailLevel: "基础指引",
+    },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -29,15 +29,17 @@ export function UserContextForm({ onSubmit }: UserContextFormProps) {
           </label>
           <select
             value={context.experience}
-            onChange={e => setContext(prev => ({
-              ...prev,
-              experience: e.target.value as UserContext['experience']
-            }))}
+            onChange={(e) =>
+              setContext((prev) => ({
+                ...prev,
+                experience: e.target.value as UserContext["experience"],
+              }))
+            }
             className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="none">首次使用</option>
-            <option value="beginner">有少许经验</option>
-            <option value="experienced">经验丰富</option>
+            <option value="首次使用">首次使用</option>
+            <option value="有少许经验">有少许经验</option>
+            <option value="经验丰富">经验丰富</option>
           </select>
         </div>
 
@@ -47,18 +49,21 @@ export function UserContextForm({ onSubmit }: UserContextFormProps) {
           </label>
           <select
             value={context.preferences?.detailLevel}
-            onChange={e => setContext(prev => ({
-              ...prev,
-              preferences: {
-                ...prev.preferences,
-                detailLevel: e.target.value as UserContext['preferences']['detailLevel']
-              }
-            }))}
+            onChange={(e) =>
+              setContext((prev) => ({
+                ...prev,
+                preferences: {
+                  ...prev.preferences,
+                  detailLevel: e.target
+                    .value as UserContext["preferences"]["detailLevel"],
+                },
+              }))
+            }
             className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="basic">基础指引</option>
-            <option value="detailed">详细指引</option>
-            <option value="expert">专业指引</option>
+            <option value="基础指引">基础指引</option>
+            <option value="详细指引">详细指引</option>
+            <option value="专业指引">专业指引</option>
           </select>
         </div>
 
