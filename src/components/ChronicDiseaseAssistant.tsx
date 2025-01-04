@@ -31,7 +31,7 @@ export function ChronicDiseaseAssistant({
     { id: "other", name: "其他", icon: "➕" },
   ];
 
-  const { chronicDiseaseFollowup, loading: loa, error } = useAI();
+  const { chronicDiseaseFollowup } = useAI();
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
   useEffect(() => {
@@ -81,7 +81,6 @@ export function ChronicDiseaseAssistant({
       medicalHistory,
       currentCondition,
     };
-
     console.log("Generated Report:", report);
     try {
       const result = await chronicDiseaseFollowup(
@@ -96,8 +95,6 @@ export function ChronicDiseaseAssistant({
     } catch (e) {
       console.error("Failed to generate report:", e);
     }
-
-    // onClose();
   };
 
   if (!isOpen) return null;
@@ -116,7 +113,6 @@ export function ChronicDiseaseAssistant({
           <h2 className="text-2xl font-bold text-white mt-8">慢病助手</h2>
           <p className="text-green-100">帮您生成专业的复诊交流内容</p>
         </div>
-
         {analysisResult && (
           <div className="p-4 bg-blue-50 rounded-xl max-h-96 overflow-auto">
             <p className="text-sm text-gray-600 whitespace-pre-line">
@@ -124,7 +120,6 @@ export function ChronicDiseaseAssistant({
             </p>
           </div>
         )}
-
         {!analysisResult && (
           <div>
             {/* Progress Steps */}
@@ -142,7 +137,7 @@ export function ChronicDiseaseAssistant({
             </div>
 
             {/* Content */}
-            <div className="px-6 pb-6">
+            <div className="px-6 pb-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
               {step === 1 && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-2 text-gray-800">
@@ -173,23 +168,25 @@ export function ChronicDiseaseAssistant({
               )}
 
               {step === 2 && (
-                <div className="space-y-6">
+                <div className="flex flex-col h-full">
                   <div className="flex items-center gap-2 text-gray-800">
                     <Calendar className="w-5 h-5" />
                     <h3 className="font-medium">当前服药记录</h3>
                   </div>
 
-                  <MedicationHistorySelector
-                    selectedPlans={selectedPlans}
-                    onTogglePlan={togglePlan}
-                  />
+                  <div className="flex-grow overflow-y-auto max-h-40">
+                    <MedicationHistorySelector
+                      selectedPlans={selectedPlans}
+                      onTogglePlan={togglePlan}
+                    />
+                  </div>
 
-                  <div className="relative">
+                  <div className="relative flex-grow flex flex-col mt-4">
                     <textarea
                       value={medicationHistory}
                       onChange={(e) => setMedicationHistory(e.target.value)}
                       placeholder="请输入或使用语音描述其他服用的药物..."
-                      className="w-full h-40 p-4 rounded-xl bg-gray-50 text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-green-500 pr-12"
+                      className="w-full flex-grow p-4 rounded-xl bg-gray-50 text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-green-500 pr-12"
                     />
                     <VoiceInput
                       onTranscript={handleVoiceInput}

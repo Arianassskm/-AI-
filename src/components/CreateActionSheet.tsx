@@ -54,62 +54,73 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
   const navigate = useNavigate();
 
   async function extractPictures(token: string, capturedPhotos: string[]) {
-    setIsLoading(true);
-    let taskIds = [];
-    for (const pic of capturedPhotos) {
-      const ret = await extractTask(
-        token,
-        pic,
-        "440691ca34f59687432e3987f6241c1.jpg"
-      );
+    try {
+        setIsLoading(true);
+        const taskIds = await createExtractTasks(token, capturedPhotos);
+        const result = await fetchExtractResults(token, taskIds);
+        const data = processExtractResults(result);
 
-      taskIds.push(ret.result.taskId);
+        console.log("传入", {
+            name: data["名称"],
+            specification: data["规格"],
+            manufacturer: data["生产企业"],
+            expiryDate: data["过期日期"],
+            batchNumber: data["批次"],
+            packageInfo: data["包装"],
+        });
+
+        // 跳转到药品确认/处方确认页面
+        setPassMedicineInfo({
+            name: data["名称"],
+            specification: data["规格"],
+            manufacturer: data["生产企业"],
+            expiryDate: data["过期日期"],
+            batchNumber: data["批次"],
+            packageInfo: data["包装"],
+        });
+
+        setShowMedicineConfirmation(true);
+    } catch (error) {
+        console.error("Failed to extract pictures:", error);
+    } finally {
+        setIsLoading(false);
     }
-    // 图片抽取
+}
+
+async function createExtractTasks(token: string, capturedPhotos: string[]): Promise<string[]> {
+    const taskIds = [];
+    for (const pic of capturedPhotos) {
+        const ret = await extractTask(token, pic, "440691ca34f59687432e3987f6241c1.jpg");
+        taskIds.push(ret.result.taskId);
+    }
+    return taskIds;
+}
+
+async function fetchExtractResults(token: string, taskIds: string[]): Promise<ExtractResult[]> {
     let result: ExtractResult[] = [];
     for (const task of taskIds) {
-      const ret = await pollingTask(token, task);
-      result = result.concat(ret);
+        const ret = await pollingTask(token, task);
+        result = result.concat(ret);
     }
+    return result;
+}
 
-    // 处理数据
-    console.log("图片抽取结果", JSON.stringify(result));
-    let data = {};
+function processExtractResults(result: ExtractResult[]): Record<string, string> {
+    const data: Record<string, string> = {};
     result.forEach((item) => {
-      const keys = Object.keys(item.data.singleKey);
-
-      for (const key of keys) {
-        const value = item.data.singleKey[key];
-        let words = "";
-        for (const val of value) {
-          words = words.concat(val.word);
+        const keys = Object.keys(item.data.singleKey);
+        for (const key of keys) {
+            const value = item.data.singleKey[key];
+            let words = "";
+            for (const val of value) {
+                words = words.concat(val.word);
+            }
+            console.log(`Key: ${key}, Value:${words}`);
+            data[key] = words;
         }
-        console.log(`Key: ${key}, Value:${words}`);
-        data[key] = words;
-      }
     });
-    console.log(data);
-    console.log("传入", {
-      name: data["名称"],
-      specification: data["规格"],
-      manufacturer: data["生产企业"],
-      expiryDate: data["过期日期"],
-      batchNumber: data["批次"],
-      packageInfo: data["包装"],
-    });
-    // 跳转到药品确认/处方确认页面
-    setPassMedicineInfo({
-      name: data["名称"],
-      specification: data["规格"],
-      manufacturer: data["生产企业"],
-      expiryDate: data["过期日期"],
-      batchNumber: data["批次"],
-      packageInfo: data["包装"],
-    });
-
-    setIsLoading(false);
-    setShowMedicineConfirmation(true);
-  }
+    return data;
+}
 
   const handleScanTypeSelect = (type: "medicine" | "prescription") => {
     setShowScanSelector(false);
