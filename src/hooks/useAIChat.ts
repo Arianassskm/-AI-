@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { sendAIRequest } from '../utils/aiUtils';
+import { useState } from "react";
+import { sendAIRequest } from "../utils/aiUtils";
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "system";
   content: string;
   timestamp: number;
 }
@@ -22,25 +22,28 @@ export function useAIChat() {
     // Add user message
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      role: 'user',
+      role: "user",
       content,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
 
     try {
-      const response = await sendAIRequest(content, messages.map(({ role, content }) => ({ role, content })));
-      
+      const response = await sendAIRequest(
+        content,
+        messages.map(({ role, content }) => ({ role, content }))
+      );
+
       // Add AI response
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
+        role: "system",
         content: response,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages((prev) => [...prev, aiMessage]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '发送消息失败，请重试');
+      setError(err instanceof Error ? err.message : "发送消息失败，请重试");
     } finally {
       setLoading(false);
     }
@@ -56,6 +59,6 @@ export function useAIChat() {
     loading,
     error,
     sendMessage,
-    clearMessages
+    clearMessages,
   };
 }
