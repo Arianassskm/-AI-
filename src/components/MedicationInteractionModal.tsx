@@ -41,6 +41,13 @@ export function MedicationInteractionModal({
     }
   };
 
+  const handleClose = () => {
+    setMedicationOne("");
+    setMedicationTwo("");
+    setAnalysisResult("");
+    onClose();
+  };
+
   const renderContent = () => {
     if (!interactionType) {
       return (
@@ -146,26 +153,10 @@ export function MedicationInteractionModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-xl w-[90%] max-w-md overflow-hidden shadow-xl">
         <div className="p-4 border-b border-gray-100 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            {interactionType && (
-              <button
-                onClick={() => {
-                  setInteractionType(null);
-                  setAnalysisResult(null);
-                }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            )}
             <h2 className="text-lg font-semibold text-gray-800">
               {interactionType
                 ? interactionType === "drug"
@@ -175,7 +166,7 @@ export function MedicationInteractionModal({
             </h2>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
             <X className="w-5 h-5 text-gray-500" />

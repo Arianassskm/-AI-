@@ -92,23 +92,44 @@ export function MedicationCabinetAssessment({
     console.log("Assessment Data:", assessment);
     setIsLoading(true);
     try {
+      let members: string = "";
+      for (const member of familyMembers) {
+        members = members.concat(member.label + ":" + member.count + "人，");
+      }
+      console.log("Members Data:", members);
+      let conditions: string = "";
+      for (const condition of storageConditions) {
+        console.log(condition);
+        conditions = conditions.concat(
+          condition.label + condition.description + ","
+        );
+      }
+      console.log("Conditions:", conditions);
       const result = await pillboxSssessments(
-        familyMembers.length > 0 ? familyMembers.join(",") : "",
+        members,
         budget + "",
         storageSpace + "",
-        storageConditions.length > 0 ? storageConditions.join(",") : ""
+        conditions
       );
       setIsLoading(false);
       setAnalysisResult(result);
     } catch (error) {
       setIsLoading(false);
     }
-
-    // onClose();
   };
 
   const handleClose = () => {
     setAnalysisResult("");
+    setStep(1);
+    setFamilyMembers([
+      { type: "adult", label: "成人", icon: "👤", count: 0 },
+      { type: "elder", label: "老人", icon: "👴", count: 0 },
+      { type: "child", label: "儿童", icon: "👶", count: 0 },
+      { type: "pet", label: "宠物", icon: "🐱", count: 0 },
+    ]);
+    setBudget(500);
+    setStorageSpace(2);
+    setSelectedConditions(new Set());
     onClose();
   };
 

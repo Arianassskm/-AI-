@@ -24,12 +24,12 @@ export function ChronicDiseaseAssistant({
   const [isListening, setIsListening] = useState(false);
 
   const diseases = [
-    { id: "diabetes", name: "糖尿病", icon: "🩺" },
-    { id: "hypertension", name: "高血压", icon: "❤️" },
-    { id: "heart", name: "心脏病", icon: "💗" },
-    { id: "arthritis", name: "关节炎", icon: "🦴" },
-    { id: "asthma", name: "哮喘", icon: "🫁" },
-    { id: "other", name: "其他", icon: "➕" },
+    { id: "糖尿病", name: "糖尿病", icon: "🩺" },
+    { id: "高血压", name: "高血压", icon: "❤️" },
+    { id: "心脏病", name: "心脏病", icon: "💗" },
+    { id: "关节炎", name: "关节炎", icon: "🦴" },
+    { id: "哮喘", name: "哮喘", icon: "🫁" },
+    { id: "其他", name: "其他", icon: "➕" },
   ];
 
   const { chronicDiseaseFollowup } = useAI();
@@ -102,6 +102,17 @@ export function ChronicDiseaseAssistant({
     }
   };
 
+  const handleClose = () => {
+    setStep(1);
+    setDiseaseType([]);
+    setMedicalHistory("");
+    setMedicationHistory("");
+    setCurrentCondition("");
+    setIsListening(false);
+    setAnalysisResult("");
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -110,7 +121,7 @@ export function ChronicDiseaseAssistant({
         {/* Header */}
         <div className="relative h-32 bg-gradient-to-r from-green-500 to-emerald-600 p-6">
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute top-4 right-4 p-2 rounded-full bg-white/10 backdrop-blur-sm text-white"
           >
             <X className="w-5 h-5" />

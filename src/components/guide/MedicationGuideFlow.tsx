@@ -17,12 +17,12 @@ export function MedicationGuideFlow() {
   const { generateMedicationGuide } = useAI();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSelectType = (type: GuideType) => {
+  const handleSelectType = (type: string) => {
+    console.log("handleSelectType", type);
     // 这里应该从实际数据中获取药品信息
     setSelectedMedication({
       id: "1",
-      name: "示例药品",
-      type,
+      name: type,
       usageMethod: "示例用法",
       frequency: "每日一次",
     });
