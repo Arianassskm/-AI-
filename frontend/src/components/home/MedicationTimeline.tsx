@@ -1,58 +1,77 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle, Clock, Check } from 'lucide-react';
-import { cn } from '../../utils/cn';
-import { medicationService } from '../../services/medicationService';
+import { TimelineItem } from './TimelineItem';
+import { TimeRangeSelector } from './TimeRangeSelector';
+import { medicationReminderService } from '../../services/medicationReminder';
 import type { MedicationReminder } from '../../types/medication';
-
-// ... TimelineItem component remains the same ...
 
 export function MedicationTimeline() {
   const [reminders, setReminders] = useState<MedicationReminder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
-  useEffect(() => {
-    loadReminders();
-  }, []);
-
-  const loadReminders = async () => {
+  const loadReminders = async (date: Date, pageNum: number) => {
     try {
-      const data = await medicationService.getReminders();
-      setReminders(data);
-    } catch (err) {
-      setError('Failed to load reminders');
-      console.error(err);
+      setLoading(true);
+      const data = await medicationReminderService.getReminders(date, pageNum);
+      if (pageNum === 0) {
+        setReminders(data);
+      } else {
+        setReminders(prev => [...prev, ...data]);
+      }
+      setHasMore(data.length > 0);
+    } catch (error) {
+      console.error('Failed to load reminders:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    setPage(0);
+    loadReminders(selectedDate, 0);
+  }, [selectedDate]);
+
   const handleComplete = async (reminderId: string) => {
-    try {
-      await medicationService.checkInReminder(reminderId);
-      setReminders(prev => prev.map(reminder => 
-        reminder.id === reminderId
-          ? { ...reminder, isCompleted: true }
-          : reminder
-      ));
-    } catch (err) {
-      console.error('Failed to check in reminder:', err);
+    setReminders(prev => prev.map(reminder => 
+      reminder.id === reminderId
+        ? { ...reminder, isCompleted: true }
+        : reminder
+    ));
+  };
+
+  const handleCancel = async (reminderId: string) => {
+    setReminders(prev => prev.map(reminder => 
+      reminder.id === reminderId
+        ? { ...reminder, isCompleted: false }
+        : reminder
+    ));
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop <= clientHeight * 1.5 && !loading && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      loadReminders(selectedDate, nextPage);
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   return (
-    <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 shadow-sm">
-      <h2 className="text-base font-medium text-gray-800 mb-4">用药提醒</h2>
+    <div className="card p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base font-medium text-gray-800">用药提醒</h2>
+        <TimeRangeSelector 
+          selectedDate={selectedDate}
+          onChange={setSelectedDate}
+        />
+      </div>
       
-      <div className="relative">
+      <div 
+        className="relative max-h-[60vh] overflow-y-auto"
+        onScroll={handleScroll}
+      >
         <div className="space-y-2">
           {reminders.map((reminder, index) => (
             <TimelineItem
@@ -61,9 +80,16 @@ export function MedicationTimeline() {
               isFirst={index === 0}
               isLast={index === reminders.length - 1}
               onComplete={handleComplete}
+              onCancel={handleCancel}
             />
           ))}
         </div>
+
+        {loading && (
+          <div className="py-4 text-center text-gray-500 text-sm">
+            加载中...
+          </div>
+        )}
       </div>
     </div>
   );
