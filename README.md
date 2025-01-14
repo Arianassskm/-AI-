@@ -48,11 +48,7 @@
 - React Router
 
 ### 后端
-- Supabase
-  - PostgreSQL 数据库
-  - 实时订阅
-  - 身份认证
-  - 存储服务
+- SQLite
 - Node.js
 
 ### AI 功能
