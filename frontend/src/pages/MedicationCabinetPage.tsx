@@ -8,6 +8,7 @@ import { InventoryCard } from "../components/inventory/InventoryCard";
 import { InventoryUpdateModal } from "../components/inventory/InventoryUpdateModal";
 import { Input } from "../components/ui/Input";
 import { medicationService, Medication } from "../services/medication";
+import { useToast } from "@/hooks/useToast";
 
 const categories = [
   { id: "all", icon: "🏥", title: "全部", count: 25 },
@@ -26,24 +27,25 @@ export function MedicationCabinetPage() {
     null
   );
   const [medicines, setMedicines] = useState<Medication[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  const fetchMedicines = async () => {
+    try {
+      const response = await medicationService.getAllMedications();
+      if (response.success) {
+        setMedicines(response.data);
+      } else {
+        toast(response.message, "error");
+      }
+    } catch (error) {
+      toast("获取药品列表失败", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchMedicines = async () => {
-      try {
-        const response = await medicationService.getAllMedications();
-        console.log("用户药品", response);
-
-        if (response.error) {
-          // setError(response.error.message);
-        } else {
-          setMedicines(response.data);
-        }
-      } catch (err) {
-        // setError("获取药品数据失败");
-        console.error("获取药品失败:", err);
-      }
-    };
-
     fetchMedicines();
   }, []);
 
