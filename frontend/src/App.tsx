@@ -13,8 +13,11 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ToastProvider } from "@/hooks/useToast";
+import { getValue } from "@/hooks/useLocalStorage";
 
 export default function App() {
+  const isLoggedIn = !!getValue("accessToken");
+
   return (
     <BrowserRouter>
       <ToastProvider>
@@ -44,7 +47,7 @@ export default function App() {
                 <Route path="/register" element={<RegisterPage />} />
               </Routes>
             </main>
-            <Navigation />
+            {isLoggedIn && <Navigation />}
           </div>
         </AuthGuard>
       </ToastProvider>
