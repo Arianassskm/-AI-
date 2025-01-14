@@ -1,15 +1,38 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { PlanCard } from "../components/PlanCard";
 import { MedicineCard } from "../components/MedicineCard";
 import { medicationPlans } from "../data/sampleData";
-// import { medicines } from "../data/medicines";
 import { SpaceHeader } from "../components/SpaceHeader";
-import { useLocalStorageListener } from "../hooks/useLocalStorage";
-import { MedicineInfo } from "../components/MedicineConfirmationModal";
+import { medicationService, Medication } from "../services/medication";
 
 export function SpacePage() {
   const navigate = useNavigate();
-  const [medicines] = useLocalStorageListener<MedicineInfo[]>("medicines", []);
+  const [medicines, setMedicines] = useState<Medication[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      try {
+        const response = await medicationService.getAllMedications();
+        console.log("用户药品", response);
+
+        if (response.error) {
+          setError(response.error.message);
+        } else {
+          setMedicines(response.data);
+        }
+      } catch (err) {
+        setError("获取药品数据失败");
+        console.error("获取药品失败:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMedicines();
+  }, []);
 
   return (
     <div className="page-container">
@@ -52,11 +75,25 @@ export function SpacePage() {
           </div>
 
           <div className="overflow-x-auto">
-            <div className="flex gap-4 pb-4 -mx-4 px-4 scrollbar-hide">
-              {medicines.map((medicine) => (
-                <MedicineCard key={medicine.id} {...medicine} />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex justify-center items-center h-32">
+                <p className="text-gray-500">加载中...</p>
+              </div>
+            ) : error ? (
+              <div className="flex justify-center items-center h-32">
+                <p className="text-red-500">{error}</p>
+              </div>
+            ) : medicines.length === 0 ? (
+              <div className="flex justify-center items-center h-32">
+                <p className="text-gray-500">暂无药品</p>
+              </div>
+            ) : (
+              <div className="flex gap-4 pb-4 -mx-4 px-4 scrollbar-hide">
+                {medicines.map((medicine) => (
+                  <MedicineCard key={medicine.id} {...medicine} />
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </div>

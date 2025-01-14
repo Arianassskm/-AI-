@@ -1,110 +1,87 @@
+import { defHttp, Response } from "@/utils/request";
+
 export interface Medication {
-  id: string;
+  id: number;
   name: string;
   nameEn?: string;
-  description?: string;
-  storageCondition?: string;
-  category: string;
-  imageUrl?: string;
-}
-
-export interface MedicationCabinetItem extends Medication {
-  quantity: number;
+  manufacturer: string;
+  specification: string;
+  approvalNumber: string;
+  batchNumber: string;
   expiryDate: string;
+  unit: string;
+  totalQuantity: number;
+  currentQuantity: number;
+  storageCondition: string;
+  packageInfo: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface MedicationError {
-  message: string;
+export interface CreateMedicationDto {
+  name: string;
+  nameEn?: string;
+  manufacturer: string;
+  specification: string;
+  approvalNumber: string;
+  batchNumber: string;
+  expiryDate: string;
+  unit: string;
+  totalQuantity: number;
+  currentQuantity: number;
+  storageCondition: string;
+  packageInfo: string;
+  description?: string;
 }
+
+const API_BASE_URL = "/medicines";
 
 export const medicationService = {
   /**
-   * 获取用户的药箱内容
+   * 获取所有药品
    */
-  async getMedicationCabinet(userId: string): Promise<{
-    data: MedicationCabinetItem[];
-    error: MedicationError | null;
-  }> {
+  async getAllMedications(): Promise<Response<Medication[]>> {
     try {
-      const { data, error } = await supabase
-        .from("medication_cabinet")
-        .select(
-          `
-          *,
-          medication:medications (*)
-        `
-        )
-        .eq("user_id", userId);
-
-      if (error) throw error;
-
-      return {
-        data: data.map((item) => ({
-          id: item.medication.id,
-          name: item.medication.name,
-          nameEn: item.medication.name_en,
-          description: item.medication.description,
-          storageCondition: item.medication.storage_condition,
-          category: item.medication.category,
-          imageUrl: item.medication.image_url,
-          quantity: item.quantity,
-          expiryDate: item.expiry_date,
-        })),
-        error: null,
-      };
+      const response = await defHttp.get(`${API_BASE_URL}/findAll`);
+      return response;
     } catch (err) {
       return {
-        data: [],
-        error: {
-          message: err instanceof Error ? err.message : "获取药箱内容失败",
-        },
+        success: false,
+        message: err instanceof Error ? err.message : "获取药品列表失败",
       };
     }
   },
 
   /**
-   * 添加药品到药箱
+   * 创建新药品
    */
-  async addToMedicationCabinet(
-    userId: string,
-    medicationId: string,
-    quantity: number,
-    expiryDate: string
-  ): Promise<{ error: MedicationError | null }> {
+  async createMedication(
+    medication: CreateMedicationDto
+  ): Promise<Response<Medication>> {
     try {
+      const response = await defHttp.post(`${API_BASE_URL}/create`, medication);
+      return response;
     } catch (err) {
       return {
-        error: { message: err instanceof Error ? err.message : "添加药品失败" },
+        success: false,
+        message: err instanceof Error ? err.message : "创建药品失败",
       };
     }
   },
 
   /**
-   * 更新药箱中的药品信息
+   * 更新药品信息
    */
-  async updateMedicationCabinet(
-    userId: string,
-    medicationId: string,
-    updates: {
-      quantity?: number;
-      expiryDate?: string;
-    }
-  ): Promise<{ error: MedicationError | null }> {
+  async updateMedication(
+    id: number,
+    updates: Partial<CreateMedicationDto>
+  ): Promise<Response> {
     try {
-      const { error } = await supabase
-        .from("medication_cabinet")
-        .update({
-          quantity: updates.quantity,
-          expiry_date: updates.expiryDate,
-        })
-        .eq("user_id", userId)
-        .eq("medication_id", medicationId);
-
-      if (error) throw error;
-
-      return { error: null };
+      return await defHttp.put(`${API_BASE_URL}/update/${id}`, updates);
     } catch (err) {
       return {
+        success: false,
         error: {
           message: err instanceof Error ? err.message : "更新药品信息失败",
         },
@@ -113,61 +90,22 @@ export const medicationService = {
   },
 
   /**
-   * 从药箱中移除药品
+   * 删除药品
    */
-  async removeFromMedicationCabinet(
-    userId: string,
-    medicationId: string
-  ): Promise<{ error: MedicationError | null }> {
+  async deleteMedication(id: number): Promise<Response> {
     try {
-      const { error } = await supabase
-        .from("medication_cabinet")
-        .delete()
-        .eq("user_id", userId)
-        .eq("medication_id", medicationId);
+      const response = await fetch(`${API_BASE_URL}/delete/${id}`, {
+        method: "DELETE",
+      });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("删除药品失败");
 
       return { error: null };
     } catch (err) {
       return {
-        error: { message: err instanceof Error ? err.message : "移除药品失败" },
-      };
-    }
-  },
-
-  /**
-   * 搜索药品
-   */
-  async searchMedications(query: string): Promise<{
-    data: Medication[];
-    error: MedicationError | null;
-  }> {
-    try {
-      const { data, error } = await supabase
-        .from("medications")
-        .select("*")
-        .or(`name.ilike.%${query}%,name_en.ilike.%${query}%`)
-        .limit(10);
-
-      if (error) throw error;
-
-      return {
-        data: data.map((item) => ({
-          id: item.id,
-          name: item.name,
-          nameEn: item.name_en,
-          description: item.description,
-          storageCondition: item.storage_condition,
-          category: item.category,
-          imageUrl: item.image_url,
-        })),
-        error: null,
-      };
-    } catch (err) {
-      return {
-        data: [],
-        error: { message: err instanceof Error ? err.message : "搜索药品失败" },
+        error: {
+          message: err instanceof Error ? err.message : "删除药品失败",
+        },
       };
     }
   },

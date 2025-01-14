@@ -12,8 +12,16 @@ export function SignUpForm({ onClose }: SignUpFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [setUserInfo] = useLocalStorageListener("userInfo", {});
-  const [setIsLogIn] = useLocalStorageListener("isLogin", false);
+  const [userInfo, setUserInfo] = useLocalStorageListener("userInfo", {});
+  const [accessToken, setAccessToken] = useLocalStorageListener(
+    "accessToken",
+    ""
+  );
+  const [refreshToken, setRefreshToken] = useLocalStorageListener(
+    "refreshToken",
+    ""
+  );
+  const [isLogin, setIsLogin] = useLocalStorageListener("isLogin", false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,10 +34,14 @@ export function SignUpForm({ onClose }: SignUpFormProps) {
 
     setIsLoading(true);
     const ret = await authService.signUp(email, password);
-    if (ret.status === 200 || ret.status === 304) {
-      setUserInfo(ret);
-      setIsLogIn(true);
+    if (ret.success) {
+      setUserInfo(ret.data);
+      setAccessToken(ret.accessToken);
+      setRefreshToken(ret.refreshToken);
+      setIsLogin(true);
       onClose();
+    } else {
+      setError(ret.message);
     }
     setIsLoading(false);
   };

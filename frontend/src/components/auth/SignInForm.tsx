@@ -11,8 +11,16 @@ export function SignInForm({ onClose }: SignInFormProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [setUserInfo] = useLocalStorageListener("userInfo", {});
-  const [setIsLogIn] = useLocalStorageListener("isLogin", false);
+  const [userInfo, setUserInfo] = useLocalStorageListener("userInfo", {});
+  const [isLogin, setIsLogin] = useLocalStorageListener("isLogin", false);
+  const [accessToken, setAccessToken] = useLocalStorageListener(
+    "accessToken",
+    ""
+  );
+  const [refreshToken, setRefreshToken] = useLocalStorageListener(
+    "refreshToken",
+    ""
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,10 +30,13 @@ export function SignInForm({ onClose }: SignInFormProps) {
     try {
       const ret = await authService.signIn(email, password);
       console.log("userInfo:", ret);
-      if (ret.status === 200) {
+      if (ret.success) {
         setUserInfo(ret.data);
-        setIsLogIn(true);
+        setAccessToken(ret.accessToken);
+        setRefreshToken(ret.refreshToken);
         onClose();
+      } else {
+        setError(ret.message);
       }
     } catch (err) {
       console.log(err);

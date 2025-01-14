@@ -1,6 +1,5 @@
 import type { User } from "../types/user";
-import axios from "axios";
-import { defHttp } from "@/utils/request";
+import { defHttp, Response } from "@/utils/request";
 
 export interface AuthError {
   message: string;
@@ -15,41 +14,55 @@ export const authService = {
   /**
    * 用户注册
    */
-  signUp(email: string, password: string): Promise<AuthResponse> {
-    return new Promise<AuthResponse>((resolve, reject) => {
-      defHttp
-        .post("/backend-api/users", { email: email, password: password })
-        .then((res) => {
-          resolve(res);
-        })
-        .catch((err) => {
-          reject({
-            user: null,
-            error: { message: err instanceof Error ? err.message : "注册失败" },
-          });
-        });
-    });
+  async signUp(email: string, password: string): Promise<Response<User>> {
+    try {
+      const response = await defHttp.post(
+        "/users/register",
+        {
+          email: email,
+          password: password,
+        },
+        {
+          requestOptions: {
+            withToken: false,
+          },
+        }
+      );
+
+      return response;
+    } catch (err) {
+      return {
+        success: false,
+        message: err instanceof Error ? err.message : "注册失败",
+      };
+    }
   },
 
   /**
    * 用户登录
    */
-  signIn(email: string, password: string): Promise<AuthResponse> {
-    return new Promise<AuthResponse>((resolve, reject) => {
-      defHttp
-        .get("/backend-api/users", {
-          params: { email: email, password: password },
-        })
-        .then((res) => {
-          resolve(res);
-        })
-        .catch((err) => {
-          reject({
-            user: null,
-            error: { message: err instanceof Error ? err.message : "登录失败" },
-          });
-        });
-    });
+  async signIn(email: string, password: string): Promise<Response> {
+    try {
+      const response = await defHttp.post(
+        "/users/login",
+        {
+          email: email,
+          password: password,
+        },
+        {
+          requestOptions: {
+            withToken: false,
+          },
+        }
+      );
+
+      return response;
+    } catch (err) {
+      return {
+        success: false,
+        message: err instanceof Error ? err.message : "登录失败",
+      };
+    }
   },
 
   /**

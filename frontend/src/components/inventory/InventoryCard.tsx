@@ -1,14 +1,14 @@
-import { AlertCircle, Package } from 'lucide-react';
-import { Card } from '../ui/Card';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
-import { cn } from '../../utils/cn';
+import { AlertCircle, Package } from "lucide-react";
+import { Card } from "../ui/Card";
+import { Badge } from "../ui/Badge";
+import { Button } from "../ui/Button";
+import { cn } from "../../utils/cn";
 
 interface InventoryCardProps {
   medication: {
     id: string;
     name: string;
-    imageUrl: string;
+    image: string;
     currentQuantity: number;
     totalQuantity: number;
     expiryDate: string;
@@ -18,11 +18,13 @@ interface InventoryCardProps {
 }
 
 export function InventoryCard({ medication, onUpdate }: InventoryCardProps) {
-  const stockPercentage = (medication.currentQuantity / medication.totalQuantity) * 100;
+  const stockPercentage =
+    (medication.currentQuantity / medication.totalQuantity) * 100;
   const isLowStock = stockPercentage < 20;
-  
+
   const daysUntilExpiry = Math.ceil(
-    (new Date(medication.expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    (new Date(medication.expiryDate).getTime() - Date.now()) /
+      (1000 * 60 * 60 * 24)
   );
   const isExpiringSoon = daysUntilExpiry <= 30;
 
@@ -30,7 +32,7 @@ export function InventoryCard({ medication, onUpdate }: InventoryCardProps) {
     <Card gradient hover>
       <div className="flex gap-4">
         <img
-          src={medication.imageUrl}
+          src={medication.image}
           alt={medication.name}
           className="w-24 h-24 rounded-lg object-cover"
         />
@@ -51,11 +53,7 @@ export function InventoryCard({ medication, onUpdate }: InventoryCardProps) {
                 )}
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onUpdate}
-            >
+            <Button variant="outline" size="sm" onClick={onUpdate}>
               更新库存
             </Button>
           </div>
@@ -66,16 +64,15 @@ export function InventoryCard({ medication, onUpdate }: InventoryCardProps) {
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-500">库存</span>
                 <span className="text-gray-800 font-medium">
-                  {medication.currentQuantity}/{medication.totalQuantity} {medication.unit}
+                  {medication.currentQuantity}/{medication.totalQuantity}{" "}
+                  {medication.unit}
                 </span>
               </div>
               <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={cn(
                     "h-full rounded-full transition-all duration-300",
-                    isLowStock
-                      ? "bg-amber-500"
-                      : "bg-blue-500"
+                    isLowStock ? "bg-amber-500" : "bg-blue-500"
                   )}
                   style={{ width: `${stockPercentage}%` }}
                 />

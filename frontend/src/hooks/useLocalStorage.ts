@@ -31,7 +31,6 @@ export function useLocalStorageListener<T>(
         // 处理函数类型的值
         const valueToStore =
           value instanceof Function ? value(storedValue) : value;
-        console.log("更新缓存", valueToStore);
 
         // 更新 state
         setStoredValue(valueToStore);
@@ -106,4 +105,14 @@ export function useLocalStorageListener<T>(
   }, [key, initialValue]);
 
   return [storedValue, setValue];
+}
+
+export function getValue(key: string) {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : "";
+  } catch (error) {
+    console.warn(`Error reading localStorage key "${key}":`, error);
+    return "";
+  }
 }

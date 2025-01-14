@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Search } from "lucide-react";
 import { MedicationCabinetScore } from "../components/MedicationCabinetScore";
@@ -7,34 +7,7 @@ import { InventoryStats } from "../components/inventory/InventoryStats";
 import { InventoryCard } from "../components/inventory/InventoryCard";
 import { InventoryUpdateModal } from "../components/inventory/InventoryUpdateModal";
 import { Input } from "../components/ui/Input";
-import { useLocalStorageListener } from "../hooks/useLocalStorage";
-import { MedicineInfo } from "../components/MedicineConfirmationModal";
-
-// Mock data
-// const medications = [
-//   {
-//     id: "1",
-//     name: "连花清瘟胶囊",
-//     imageUrl:
-//       "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300&h=300&fit=crop",
-//     currentQuantity: 24,
-//     totalQuantity: 36,
-//     expiryDate: "2025-12-20",
-//     unit: "粒",
-//     category: "cold",
-//   },
-//   {
-//     id: "2",
-//     name: "布洛芬缓释胶囊",
-//     imageUrl:
-//       "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=300&h=300&fit=crop",
-//     currentQuantity: 4,
-//     totalQuantity: 20,
-//     expiryDate: "2024-06-20",
-//     unit: "粒",
-//     category: "fever",
-//   },
-// ];
+import { medicationService, Medication } from "../services/medication";
 
 const categories = [
   { id: "all", icon: "🏥", title: "全部", count: 25 },
@@ -49,13 +22,30 @@ export function MedicationCabinetPage() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedMedication, setSelectedMedication] = useState<string | null>(
+  const [selectedMedication, setSelectedMedication] = useState<number | null>(
     null
   );
-  const [medicines, setMedicines] = useLocalStorageListener<MedicineInfo[]>(
-    "medicines",
-    []
-  );
+  const [medicines, setMedicines] = useState<Medication[]>([]);
+
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      try {
+        const response = await medicationService.getAllMedications();
+        console.log("用户药品", response);
+
+        if (response.error) {
+          // setError(response.error.message);
+        } else {
+          setMedicines(response.data);
+        }
+      } catch (err) {
+        // setError("获取药品数据失败");
+        console.error("获取药品失败:", err);
+      }
+    };
+
+    fetchMedicines();
+  }, []);
 
   const handleImprove = () => {
     alert("正在分析您的药箱，即将为您提供改进建议...");
@@ -65,37 +55,8 @@ export function MedicationCabinetPage() {
     setSelectedMedication(id);
   };
 
-  const handleConfirmUpdate = async (data: {
-    id: number;
-    quantity: number;
-    type: "add" | "subtract";
-    reason?: string;
-  }) => {
-    const { id, quantity, type } = data;
-
-    console.log("Update data:", data);
-    let medicine: MedicineInfo = medicines.find((med) => med.id === id);
-    if (!medicine) {
-      return;
-    }
-    let isUpdate = false;
-    for (let med of medicines) {
-      if (med.id !== id) {
-        continue;
-      }
-
-      med.currentQuantity =
-        type === "add"
-          ? Number(med?.currentQuantity) + quantity
-          : Number(med?.currentQuantity) >= quantity
-          ? Number(med?.currentQuantity) - quantity
-          : 0;
-      isUpdate = true;
-    }
-    if (isUpdate) {
-      setMedicines([...medicines]);
-    }
-    setSelectedMedication(null);
+  const handleUpdateSuccess = async () => {
+    // 刷新
   };
 
   const filteredMedications = medicines.filter(
@@ -178,8 +139,8 @@ export function MedicationCabinetPage() {
         <InventoryUpdateModal
           isOpen={true}
           onClose={() => setSelectedMedication(null)}
-          onConfirm={handleConfirmUpdate}
-          medication={medicines.find((m) => m.id === selectedMedication)!}
+          onSuccess={handleUpdateSuccess}
+          medicine={medicines.find((m) => m.id === selectedMedication)!}
         />
       )}
     </div>

@@ -1,12 +1,12 @@
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function SpaceHeader() {
   const navigate = useNavigate();
-  
+
   return (
     <div className="flex items-center justify-between mb-6">
-      <button 
+      <button
         onClick={() => navigate(-1)}
         className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
       >

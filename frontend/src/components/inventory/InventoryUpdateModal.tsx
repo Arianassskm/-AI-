@@ -3,41 +3,51 @@ import { X, Plus, Minus, AlertCircle } from "lucide-react";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
+import { medicationService, Medication } from "@/services/medication";
 
 interface InventoryUpdateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (data: {
-    id: number;
-    quantity: number;
-    type: "add" | "subtract";
-    reason?: string;
-  }) => void;
-  medication: {
-    id: number;
-    name: string;
-    currentQuantity: number;
-    totalQuantity: number;
-    unit: string;
-  };
+  onSuccess: () => void;
+  medicine: Medication;
 }
 
 export function InventoryUpdateModal({
   isOpen,
   onClose,
-  onConfirm,
-  medication,
+  onSuccess,
+  medicine,
 }: InventoryUpdateModalProps) {
-  const id = medication.id;
   const [type, setType] = useState<"add" | "subtract">("add");
   const [quantity, setQuantity] = useState(1);
   const [reason, setReason] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onConfirm({ id, quantity, type, reason });
+    setIsLoading(true);
+
+    medicine.currentQuantity =
+      type === "add"
+        ? Number(medicine?.currentQuantity) + quantity
+        : Number(medicine?.currentQuantity) >= quantity
+        ? Number(medicine?.currentQuantity) - quantity
+        : 0;
+    medicine.totalQuantity =
+      type === "add"
+        ? Number(medicine?.totalQuantity) + quantity
+        : medicine.totalQuantity;
+
+    const ret = await medicationService.updateMedication(medicine.id, medicine);
+    console.log("Update data:", ret);
+    setIsLoading(false);
+
+    if (ret.success) {
+      onSuccess();
+      onClose();
+    }
   };
 
   return (
@@ -56,14 +66,12 @@ export function InventoryUpdateModal({
         <form onSubmit={handleSubmit} className="p-4 space-y-6">
           {/* Current Status */}
           <Card gradient>
-            <h3 className="font-medium text-gray-800 mb-2">
-              {medication.name}
-            </h3>
+            <h3 className="font-medium text-gray-800 mb-2">{medicine.name}</h3>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-500">当前库存</span>
               <span className="font-medium text-gray-800">
-                {medication.currentQuantity}/{medication.totalQuantity}{" "}
-                {medication.unit}
+                {medicine.currentQuantity}/{medicine.totalQuantity}{" "}
+                {medicine.unit}
               </span>
             </div>
           </Card>
@@ -105,14 +113,12 @@ export function InventoryUpdateModal({
               <Input
                 type="number"
                 min={1}
-                max={
-                  type === "subtract" ? medication.currentQuantity : undefined
-                }
+                max={type === "subtract" ? medicine.currentQuantity : undefined}
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
                 className="flex-1"
               />
-              <span className="text-gray-500">{medication.unit}</span>
+              <span className="text-gray-500">{medicine.unit}</span>
             </div>
           </div>
 
@@ -131,7 +137,7 @@ export function InventoryUpdateModal({
           </div>
 
           {/* Warning */}
-          {type === "subtract" && quantity > medication.currentQuantity && (
+          {type === "subtract" && quantity > medicine.currentQuantity && (
             <div className="flex items-center gap-2 text-red-600 bg-red-50 rounded-lg p-3">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <p className="text-sm">出库数量不能大于当前库存</p>
@@ -142,8 +148,9 @@ export function InventoryUpdateModal({
             type="submit"
             size="lg"
             className="w-full"
+            loading={isLoading}
             disabled={
-              type === "subtract" && quantity > medication.currentQuantity
+              type === "subtract" && quantity > medicine.currentQuantity
             }
           >
             确认{type === "add" ? "入库" : "出库"}
