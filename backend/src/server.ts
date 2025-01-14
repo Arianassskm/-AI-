@@ -1,9 +1,8 @@
+import "source-map-support/register";
 import { app } from "./app";
-import dotenv from "dotenv";
+import { config } from "./config/env";
 
-dotenv.config();
-
-const port = process.env.PORT || 3000;
+const port = config.port;
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

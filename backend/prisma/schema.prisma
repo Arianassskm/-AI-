@@ -8,16 +8,45 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
   name      String?
-  password  String   @default("123456")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  password  String     @default("123456")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  medicines Medicine[]
 }
 
 model Chat {
   id        Int      @id @default(autoincrement())
   message   String
   createdAt DateTime @default(now())
+}
+
+model Medicine {
+  id               Int      @id @default(autoincrement())
+  name             String   
+  nameEn           String?  
+  manufacturer     String   
+  specification    String   
+  approvalNumber   String   
+  batchNumber      String   
+  expiryDate       String   // 改为字符串类型，格式为 YYYY-MM-DD
+  unit             String @default("片")   // 单位（如：片、粒、毫升等）
+  totalQuantity    Int @default(0)      // 总数量
+  currentQuantity  Int @default(0)      // 当前数量
+  storageCondition String   
+  packageInfo      String   
+  description      String?  
+  image            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id])
+  deleted          Boolean  @default(false)
+  deletedAt        DateTime?
+
+  @@index([userId])
+  @@index([name])
+  @@index([deleted])
 }

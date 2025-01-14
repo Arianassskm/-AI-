@@ -1,36 +1,36 @@
-import { prisma } from "../config/database";
-import { AppError } from "../utils/error-handler";
+import { PrismaClient } from "@prisma/client";
+import { passwordUtil } from "../utils/password.util";
+
+const prisma = new PrismaClient();
 
 export class UserService {
-  async findAll() {
-    return await prisma.user.findMany();
+  async create(data: { email: string; password: string }) {
+    const hashedPassword = await passwordUtil.hash(data.password);
+    console.log("data", data);
+    return prisma.user.create({
+      data: {
+        ...data,
+        name: "用户" + new Date().getTime(),
+        password: hashedPassword,
+      },
+    });
   }
 
   async findByEmailNPwd(email: string, password: string) {
-    const existingUser = await prisma.user.findUnique({
-      where: { email: email, password: password },
+    const user = await prisma.user.findUnique({
+      where: { email },
     });
-    console.log("获取用户", existingUser);
 
-    if (!existingUser) {
-      throw new AppError(400, "用户不存在");
-    }
+    if (!user) return null;
 
-    return existingUser;
+    const isValid = await passwordUtil.verify(password, user.password);
+    return isValid ? user : null;
   }
 
-  async create(data: { email: string; password: string }) {
-    const existingUser = await prisma.user.findUnique({
-      where: { email: data.email },
+  async refreshToken(userId: number) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
     });
-    console.log(existingUser);
-    if (existingUser) {
-      throw new AppError(400, "该邮箱已被注册");
-    }
-
-    console.log("user:", { ...data, name: "用户" + new Date().getTime() });
-    return await prisma.user.create({
-      data: { ...data, name: "用户" + new Date().getTime() },
-    });
+    return user;
   }
 }

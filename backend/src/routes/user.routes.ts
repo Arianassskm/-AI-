@@ -1,10 +1,17 @@
 import { Router } from "express";
 import { UserController } from "../controllers/user.controller";
+import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();
 const userController = new UserController();
 
-router.get("/", userController.getUsers);
-router.post("/", userController.createUser);
+// 公开路由
+router.post("/login", userController.login);
+router.post("/refreshToken", userController.refreshToken);
+router.post("/register", userController.register);
 
-export { router as userRouter };
+// 需要认证的路由
+router.use(authMiddleware);
+router.get("/getUsers", userController.getUsers);
+
+export default router;
