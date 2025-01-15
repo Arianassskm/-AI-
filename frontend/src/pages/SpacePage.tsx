@@ -15,17 +15,16 @@ export function SpacePage() {
   useEffect(() => {
     const fetchMedicines = async () => {
       try {
-        const response = await medicationService.getAllMedications();
-        console.log("用户药品", response);
+        const ret = await medicationService.getAllMedications();
+        console.log("用户药品", ret);
 
-        if (response.error) {
-          setError(response.error.message);
+        if (ret.success) {
+          setMedicines(ret.data);
         } else {
-          setMedicines(response.data);
+          setError(ret.message);
         }
       } catch (err) {
         setError("获取药品数据失败");
-        console.error("获取药品失败:", err);
       } finally {
         setIsLoading(false);
       }

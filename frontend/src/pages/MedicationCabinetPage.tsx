@@ -32,11 +32,11 @@ export function MedicationCabinetPage() {
 
   const fetchMedicines = async () => {
     try {
-      const response = await medicationService.getAllMedications();
-      if (response.success) {
-        setMedicines(response.data);
+      const ret = await medicationService.getAllMedications();
+      if (ret.success) {
+        setMedicines(ret.data);
       } else {
-        toast(response.message, "error");
+        toast(ret.message, "error");
       }
     } catch (error) {
       toast("获取药品列表失败", "error");
