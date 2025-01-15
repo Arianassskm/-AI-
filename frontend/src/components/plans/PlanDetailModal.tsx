@@ -1,13 +1,20 @@
-import { X, Calendar, Clock, AlertCircle, CheckCircle2, Pill } from 'lucide-react';
-import type { MedicationPlan } from '../../types/medicationPlan';
+import { X, Calendar, Clock, CheckCircle2 } from "lucide-react";
+import {
+  MedicinePlan,
+  calculateProgress,
+} from "@/services/medicinePlanService";
 
 interface PlanDetailModalProps {
-  plan: MedicationPlan | null;
+  plan: MedicinePlan | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function PlanDetailModal({ plan, isOpen, onClose }: PlanDetailModalProps) {
+export function PlanDetailModal({
+  plan,
+  isOpen,
+  onClose,
+}: PlanDetailModalProps) {
   if (!isOpen || !plan) return null;
 
   return (
@@ -17,13 +24,17 @@ export function PlanDetailModal({ plan, isOpen, onClose }: PlanDetailModalProps)
         <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md p-4 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-gray-800">{plan.name}</h2>
-              <div className={`mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                plan.status === 'active'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'bg-emerald-50 text-emerald-600'
-              }`}>
-                {plan.status === 'active' ? '进行中' : '已完成'}
+              <h2 className="text-xl font-semibold text-gray-800">
+                {plan.name}
+              </h2>
+              <div
+                className={`mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  plan.status === "active"
+                    ? "bg-blue-50 text-blue-600"
+                    : "bg-emerald-50 text-emerald-600"
+                }`}
+              >
+                {plan.status === "active" ? "进行中" : "已完成"}
               </div>
             </div>
             <button
@@ -43,7 +54,9 @@ export function PlanDetailModal({ plan, isOpen, onClose }: PlanDetailModalProps)
               <Calendar className="w-5 h-5 text-gray-500" />
               <div>
                 <div className="text-sm text-gray-500">开始时间</div>
-                <div className="font-medium text-gray-800">{plan.startDate}</div>
+                <div className="font-medium text-gray-800">
+                  {plan.startDate}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -59,46 +72,59 @@ export function PlanDetailModal({ plan, isOpen, onClose }: PlanDetailModalProps)
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="text-sm font-medium text-gray-700">完成进度</div>
-              <div className="text-lg font-semibold text-blue-600">{plan.progress}%</div>
+              <div className="text-lg font-semibold text-blue-600">
+                {calculateProgress(plan)}%
+              </div>
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300"
-                style={{ width: `${plan.progress}%` }}
+                style={{ width: `${calculateProgress(plan)}%` }}
               />
             </div>
           </div>
 
           {/* Medicines */}
           <div>
-            <h3 className="text-base font-medium text-gray-800 mb-3">用药清单</h3>
+            <h3 className="text-base font-medium text-gray-800 mb-3">
+              用药清单
+            </h3>
             <div className="space-y-4">
-              {plan.medicines.map((medicine, index) => (
+              {plan.details.map((detail) => (
                 <div
-                  key={index}
+                  key={detail.id}
                   className="bg-gray-50 rounded-lg p-4 flex items-start gap-4"
                 >
                   <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                     <img
-                      src={medicine.imageUrl}
-                      alt={medicine.name}
+                      src={detail.medicine.image}
+                      alt={detail.medicine.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-800 mb-2">{medicine.name}</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
+                    <h4 className="font-medium text-gray-800 mb-2">
+                      {detail.medicine.name}
+                    </h4>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
                       <div>
                         <div className="text-gray-500">用量</div>
-                        <div className="font-medium text-gray-800">{medicine.dosage}</div>
+                        <div className="font-medium text-gray-800">
+                          {detail.dosage}
+                          {detail.medicine.unit}
+                        </div>
                       </div>
                       <div>
                         <div className="text-gray-500">频次</div>
-                        <div className="font-medium text-gray-800">{medicine.frequency}</div>
+                        <div className="font-medium text-gray-800">
+                          {detail.frequency}
+                        </div>
                       </div>
                       <div>
-                        <div className="text-gray-500">疗程</div>
-                        <div className="font-medium text-gray-800">{medicine.duration}</div>
+                        <div className="text-gray-500">方式</div>
+                        <div className="font-medium text-gray-800">
+                          {detail.timing}
+                        </div>
                       </div>
                     </div>
                   </div>

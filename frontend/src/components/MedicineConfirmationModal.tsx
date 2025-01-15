@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Camera, X } from "lucide-react";
-import { Medication } from "@/services/medication";
+import { Medicine } from "@/services/medicineService";
 import { useToast } from "@/hooks/useToast";
 
 export interface MedicineInfo {
@@ -23,8 +23,8 @@ export interface MedicineInfo {
 interface MedicineConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (medicineInfo: Medication) => void;
-  medicineInfo?: Partial<Medication>;
+  onConfirm: (medicineInfo: Medicine) => void;
+  medicineInfo?: Partial<Medicine>;
 }
 
 export default function MedicineConfirmationModal({
@@ -34,7 +34,7 @@ export default function MedicineConfirmationModal({
   medicineInfo: initialMedicineInfo,
 }: MedicineConfirmationModalProps) {
   const { toast } = useToast();
-  const [medicineInfo, setMedicineInfo] = useState<Medication>({
+  const [medicineInfo, setMedicineInfo] = useState<Medicine>({
     name: "",
     manufacturer: "",
     specification: "",
@@ -58,7 +58,7 @@ export default function MedicineConfirmationModal({
     }
   }, [initialMedicineInfo]);
 
-  const handleInputChange = (field: keyof Medication, value: string) => {
+  const handleInputChange = (field: keyof Medicine, value: string) => {
     setMedicineInfo((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -76,7 +76,7 @@ export default function MedicineConfirmationModal({
     ];
 
     for (const field of requiredFields) {
-      if (!medicineInfo[field.key as keyof Medication]) {
+      if (!medicineInfo[field.key as keyof Medicine]) {
         toast(`请填写${field.label}`, "error");
         return false;
       }
@@ -178,9 +178,9 @@ export default function MedicineConfirmationModal({
                 ) : (
                   <input
                     type={type}
-                    value={medicineInfo[key as keyof Medication]}
+                    value={medicineInfo[key as keyof Medicine]}
                     onChange={(e) =>
-                      handleInputChange(key as keyof Medication, e.target.value)
+                      handleInputChange(key as keyof Medicine, e.target.value)
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   />

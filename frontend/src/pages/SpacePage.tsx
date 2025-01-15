@@ -2,35 +2,67 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { PlanCard } from "../components/PlanCard";
 import { MedicineCard } from "../components/MedicineCard";
-import { medicationPlans } from "../data/sampleData";
 import { SpaceHeader } from "../components/SpaceHeader";
-import { medicationService, Medication } from "../services/medication";
+import { medicineService, Medicine } from "@/services/medicineService";
+import {
+  medicinePlanService,
+  MedicinePlan,
+} from "@/services/medicinePlanService";
+import { useToast } from "@/hooks/useToast";
+import { getValue } from "@/hooks/useLocalStorage";
 
 export function SpacePage() {
   const navigate = useNavigate();
-  const [medicines, setMedicines] = useState<Medication[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+  const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [medicationPlans, setMedicationPlans] = useState<MedicinePlan[]>([]);
+  const [isLoadingPlans, setIsLoadingPlans] = useState(true);
+  const [errorPlans, setErrorPlans] = useState<string | null>(null);
+
+  const [isLoadingMedicines, setIsLoadingMedicines] = useState(true);
+  const [errorMedicines, setErrorMedicines] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMedicines = async () => {
       try {
-        const ret = await medicationService.getAllMedications();
-        console.log("用户药品", ret);
+        setIsLoadingMedicines(true);
+        const ret = await medicineService.getAllMedicines();
 
         if (ret.success) {
           setMedicines(ret.data);
         } else {
-          setError(ret.message);
+          setErrorMedicines(ret.message);
         }
       } catch (err) {
-        setError("获取药品数据失败");
+        setErrorMedicines("获取药品数据失败");
       } finally {
-        setIsLoading(false);
+        setIsLoadingMedicines(false);
+      }
+    };
+
+    const fetchMedicinePlans = async () => {
+      try {
+        setIsLoadingPlans(true);
+        const userInfo = getValue("userInfo");
+        if (userInfo === undefined || userInfo.id === undefined) {
+          toast("请先登录", "error");
+          return;
+        }
+        const ret = await medicinePlanService.getUserPlans(userInfo.id);
+        if (ret.success) {
+          setMedicationPlans(ret.data);
+        } else {
+          setErrorPlans(ret.message);
+        }
+      } catch (err) {
+        setErrorPlans("获取药品数据失败");
+      } finally {
+        setIsLoadingPlans(false);
       }
     };
 
     fetchMedicines();
+    fetchMedicinePlans();
   }, []);
 
   return (
@@ -53,9 +85,23 @@ export function SpacePage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            {medicationPlans.map((plan) => (
-              <PlanCard key={plan.name} {...plan} />
-            ))}
+            {isLoadingPlans ? (
+              <div className="flex justify-center items-center h-32">
+                <p className="text-gray-500">加载中...</p>
+              </div>
+            ) : errorPlans ? (
+              <div className="flex justify-center items-center h-32">
+                <p className="text-red-500">{errorPlans}</p>
+              </div>
+            ) : medicationPlans.length === 0 ? (
+              <div className="flex justify-center items-center h-32">
+                <p className="text-gray-500">暂无计划</p>
+              </div>
+            ) : (
+              medicationPlans.map((plan) => (
+                <PlanCard key={plan.id} plan={plan} />
+              ))
+            )}
           </div>
         </section>
 
@@ -74,13 +120,13 @@ export function SpacePage() {
           </div>
 
           <div className="overflow-x-auto">
-            {isLoading ? (
+            {isLoadingMedicines ? (
               <div className="flex justify-center items-center h-32">
                 <p className="text-gray-500">加载中...</p>
               </div>
-            ) : error ? (
+            ) : errorMedicines ? (
               <div className="flex justify-center items-center h-32">
-                <p className="text-red-500">{error}</p>
+                <p className="text-red-500">{errorMedicines}</p>
               </div>
             ) : medicines.length === 0 ? (
               <div className="flex justify-center items-center h-32">

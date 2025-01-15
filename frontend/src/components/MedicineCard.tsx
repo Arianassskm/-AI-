@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { MedicineDetailModal } from "./MedicineDetailModal";
-import { Medication } from "@/services/medication";
+import { Medicine } from "@/services/medicineService";
 
-export function MedicineCard(medicine: Medication) {
+export function MedicineCard(medicine: Medicine) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (

@@ -12,7 +12,7 @@ import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
-import { medicationService } from "../services/medication";
+import { medicineService} from "@/services/medicineService";
 import { getValue } from "@/hooks/useLocalStorage";
 import { compressImage } from "../utils/image.util";
 import { useToast } from "@/hooks/useToast";
@@ -97,7 +97,7 @@ export function ManualEntryPage() {
     }
 
     form.userId = userInfo.id;
-    const ret = await medicationService.createMedication(form);
+    const ret = await medicineService.createMedicine(form);
     setIsLoading(false);
     if (ret.success) {
       toast("添加药品成功", "success");

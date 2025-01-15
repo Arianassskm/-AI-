@@ -7,7 +7,7 @@ import { InventoryStats } from "../components/inventory/InventoryStats";
 import { InventoryCard } from "../components/inventory/InventoryCard";
 import { InventoryUpdateModal } from "../components/inventory/InventoryUpdateModal";
 import { Input } from "../components/ui/Input";
-import { medicationService, Medication } from "../services/medication";
+import { medicineService, Medicine } from "@/services/medicineService";
 import { useToast } from "@/hooks/useToast";
 
 const categories = [
@@ -26,13 +26,13 @@ export function MedicationCabinetPage() {
   const [selectedMedication, setSelectedMedication] = useState<number | null>(
     null
   );
-  const [medicines, setMedicines] = useState<Medication[]>([]);
+  const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   const fetchMedicines = async () => {
     try {
-      const ret = await medicationService.getAllMedications();
+      const ret = await medicineService.getAllMedicines();
       if (ret.success) {
         setMedicines(ret.data);
       } else {

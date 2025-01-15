@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { Search, Plus } from "lucide-react";
-import { medicationService, Medication } from "@/services/medication";
+import { medicineService, Medicine } from "@/services/medicineService";
 import { useToast } from "@/hooks/useToast";
+import { MedicinePlanDetail } from "@/services/medicinePlanService";
+
+interface MedicineInfo extends Medicine, MedicinePlanDetail {}
 
 interface MedicineSelectorProps {
-  selectedMedicines: Medication[];
-  onMedicinesChange: (medicines: Medication[]) => void;
+  selectedMedicines: MedicineInfo[];
+  onMedicinesChange: (medicines: Medicine[]) => void;
 }
 
 export function MedicineSelector({
@@ -13,15 +16,13 @@ export function MedicineSelector({
   onMedicinesChange,
 }: MedicineSelectorProps) {
   const toast = useToast();
-  const [medicines, setMedicines] = useState<Medication[]>([]);
-  const [availableMedicines, setAvailableMedicines] = useState<Medication[]>(
-    []
-  );
+  const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [availableMedicines, setAvailableMedicines] = useState<Medicine[]>([]);
 
   useEffect(() => {
     const fetchMedicines = async () => {
       try {
-        const ret = await medicationService.getAllMedications();
+        const ret = await medicineService.getAllMedicines();
         if (ret.success) {
           setMedicines(ret.data);
           setAvailableMedicines(ret.data);
@@ -44,12 +45,31 @@ export function MedicineSelector({
     );
   };
 
-  const toggleMedicine = (medicine: Medication) => {
-    const isSelected = selectedMedicines.some((m) => m.id === medicine.id);
+  const toggleMedicine = (medicine: Medicine) => {
+    const isSelected = selectedMedicines.some(
+      (m) => m.medicineId === medicine.id
+    );
     if (isSelected) {
-      onMedicinesChange(selectedMedicines.filter((m) => m.id !== medicine.id));
+      onMedicinesChange(
+        selectedMedicines.filter((m) => m.medicineId !== medicine.id)
+      );
     } else {
-      onMedicinesChange([...selectedMedicines, medicine]);
+      onMedicinesChange([
+        ...selectedMedicines,
+        {
+          id: null,
+          planId: null,
+          medicineId: medicine.id,
+
+          dosage: 1,
+          frequency: "每日1次",
+          timing: "饭后服用",
+
+          name: medicine.name,
+          image: medicine.image,
+          unit: medicine.unit,
+        },
+      ]);
     }
   };
 
@@ -68,7 +88,7 @@ export function MedicineSelector({
       <div className="space-y-3">
         {availableMedicines.map((medicine) => {
           const isSelected = selectedMedicines.some(
-            (m) => m.id === medicine.id
+            (m) => m.medicineId === medicine.id
           );
           return (
             <div

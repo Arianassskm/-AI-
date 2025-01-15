@@ -13,9 +13,6 @@ import {
   type FilterOptions,
 } from "../components/plans/PlanFilterModal";
 import { CreatePlanModal } from "../components/plans/CreatePlanModal";
-import type { NewPlanData } from "../components/plans/CreatePlanModal";
-import { useLocalStorageListener } from "../hooks/useLocalStorage";
-import type { MedicationPlan } from "../types/medicationPlan";
 
 export function MedicationPlanManagementPage() {
   const [activeFilter, setActiveFilter] = useState<
@@ -30,37 +27,13 @@ export function MedicationPlanManagementPage() {
     dateRange: "all",
   });
   const [showCreatePlan, setShowCreatePlan] = useState<boolean>(false);
-  const [plans, setPlans] = useLocalStorageListener<MedicationPlan[]>(
-    "plans",
-    []
-  );
 
   const hanleOpenCreatePlan = () => {
     setShowCreatePlan(true);
   };
 
-  const handleCreatePlan = async (planData: NewPlanData) => {
+  const handleCreatePlan = () => {
     try {
-      const date = new Date();
-      // 组装对象
-      const plan = {
-        id:
-          "" +
-          date.getFullYear() +
-          date.getMonth() +
-          date.getDay() +
-          date.getHours() +
-          date.getMinutes() +
-          date.getSeconds(),
-        name: planData.name,
-        startDate: planData.startDate,
-        endDate: planData.endDate,
-        status: "active",
-        progress: 0,
-        medicines: planData.medicines,
-      };
-
-      setPlans([plan, ...plans]);
       setShowCreatePlan(false);
     } catch (error) {
       console.error("Failed to create plan:", error);

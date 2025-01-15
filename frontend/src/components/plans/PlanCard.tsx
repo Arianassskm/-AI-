@@ -1,8 +1,11 @@
-import { Calendar, Clock, CheckCircle2 } from 'lucide-react';
-import type { MedicationPlan } from '../../types/medicationPlan';
+import { Calendar, Clock, CheckCircle2 } from "lucide-react";
+import {
+  MedicinePlan,
+  calculateProgress,
+} from "@/services/medicinePlanService";
 
 interface PlanCardProps {
-  plan: MedicationPlan;
+  plan: MedicinePlan;
   onClick: () => void;
 }
 
@@ -14,12 +17,14 @@ export function PlanCard({ plan, onClick }: PlanCardProps) {
     >
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-medium text-gray-800">{plan.name}</h3>
-        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-          plan.status === 'active'
-            ? 'bg-blue-50 text-blue-600'
-            : 'bg-emerald-50 text-emerald-600'
-        }`}>
-          {plan.status === 'active' ? '进行中' : '已完成'}
+        <div
+          className={`px-2 py-1 rounded-full text-xs font-medium ${
+            plan.status === "active"
+              ? "bg-blue-50 text-blue-600"
+              : "bg-emerald-50 text-emerald-600"
+          }`}
+        >
+          {plan.status === "active" ? "进行中" : "已完成"}
         </div>
       </div>
 
@@ -38,22 +43,24 @@ export function PlanCard({ plan, onClick }: PlanCardProps) {
         <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300"
-            style={{ width: `${plan.progress}%` }}
+            style={{ width: `${calculateProgress(plan)}%` }}
           />
         </div>
-        <span className="text-sm font-medium text-gray-600">{plan.progress}%</span>
+        <span className="text-sm font-medium text-gray-600">
+          {calculateProgress(plan)}%
+        </span>
       </div>
 
       <div className="flex items-center justify-between">
         <div className="flex -space-x-2">
-          {plan.medicines.map((medicine, index) => (
+          {plan.details.map((detail) => (
             <div
-              key={index}
+              key={detail.id}
               className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-white"
             >
               <img
-                src={medicine.imageUrl}
-                alt={medicine.name}
+                src={detail.medicine.image}
+                alt={detail.medicine.name}
                 className="w-full h-full object-cover"
               />
             </div>

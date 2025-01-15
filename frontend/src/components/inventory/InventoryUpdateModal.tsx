@@ -3,14 +3,14 @@ import { X, Plus, Minus, AlertCircle } from "lucide-react";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
-import { medicationService, Medication } from "@/services/medication";
+import { medicineService, Medicine } from "@/services/medicineService";
 import { useToast } from "@/hooks/useToast";
 
 interface InventoryUpdateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  medicine: Medication;
+  medicine: Medicine;
 }
 
 export function InventoryUpdateModal({
@@ -42,7 +42,7 @@ export function InventoryUpdateModal({
         ? Number(medicine?.totalQuantity) + quantity
         : medicine.totalQuantity;
 
-    const ret = await medicationService.updateMedication(medicine.id, medicine);
+    const ret = await medicineService.updateMedicine(medicine.id, medicine);
     console.log("Update data:", ret);
     setIsLoading(false);
     if (ret.success) {

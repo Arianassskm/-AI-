@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { PlanCard } from "./PlanCard";
 import { PlanDetailModal } from "./PlanDetailModal";
 import type { MedicationPlan } from "../../types/medicationPlan";
-import { useLocalStorageListener } from "../../hooks/useLocalStorage";
+import { medicinePlanService } from "@/services/medicinePlanService";
+import { useToast } from "@/hooks/useToast";
+import { getValue } from "@/hooks/useLocalStorage";
 
 interface PlanListProps {
   filter: "all" | "active" | "completed";
@@ -11,9 +13,35 @@ interface PlanListProps {
 
 export function PlanList({ filter, searchQuery }: PlanListProps) {
   const [selectedPlan, setSelectedPlan] = useState<MedicationPlan | null>(null);
-  const [plans] = useLocalStorageListener<MedicationPlan[]>("plans", []);
+  const [medicationPlans, setMedicationPlans] = useState<MedicationPlan[]>([]);
+  const { toast } = useToast();
 
-  const filteredPlans = plans.filter((plan) => {
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      try {
+        const userInfo = getValue("userInfo");
+        if (userInfo === undefined || userInfo.id === undefined) {
+          toast("请先登录", "error");
+          return;
+        }
+
+        const ret = await medicinePlanService.getUserPlans(userInfo.id);
+        console.log("用户药品", ret);
+
+        if (ret.success) {
+          setMedicationPlans(ret.data);
+        } else {
+          toast(ret.message, "error");
+        }
+      } catch (err) {
+        toast("获取药品数据失败", "error");
+      }
+    };
+
+    fetchMedicines();
+  }, []);
+
+  const filteredPlans = medicationPlans.filter((plan) => {
     if (filter === "active" && plan.status !== "active") return false;
     if (filter === "completed" && plan.status !== "completed") return false;
     if (searchQuery) {

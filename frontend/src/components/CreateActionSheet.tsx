@@ -7,7 +7,6 @@ import { PrescriptionScanGuide } from "./scanner/PrescriptionScanGuide";
 import { CreatePlanModal } from "./plans/CreatePlanModal";
 import MedicineConfirmationModal from "./MedicineConfirmationModal";
 import { useNavigate } from "react-router-dom";
-import type { NewPlanData } from "./plans/CreatePlanModal";
 import { useLocalStorageListener } from "../hooks/useLocalStorage";
 import type { MedicationPlan } from "../types/medicationPlan";
 import LoadingOverlay from "./loading/LoadingOverlay";
@@ -17,7 +16,7 @@ import {
   pollingTask,
   ExtractResult,
 } from "../services/ocrService";
-import { medicationService, Medication } from "@/services/medication";
+import { medicineService, Medicine } from "@/services/medicineService";
 import { getValue } from "@/hooks/useLocalStorage";
 import { useToast } from "@/hooks/useToast";
 
@@ -49,11 +48,6 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
     image: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-
-  const [plans, setPlans] = useLocalStorageListener<MedicationPlan[]>(
-    "plans",
-    []
-  );
   const [token, setToken] = useLocalStorageListener<string>("ocr_token", "");
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -178,9 +172,7 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
     }
   };
 
-  const handleMedicineConfirmationConfirm = async (
-    medicineInfo: Medication
-  ) => {
+  const handleMedicineConfirmationConfirm = async (medicineInfo: Medicine) => {
     console.log("添加到药品", medicineInfo);
     const userInfo = getValue("userInfo");
     if (userInfo === undefined || userInfo.id === undefined) {
@@ -193,7 +185,7 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
     medicineInfo.currentQuantity = Number(medicineInfo.totalQuantity);
     medicineInfo.totalQuantity = Number(medicineInfo.totalQuantity);
     medicineInfo.userId = userInfo.id;
-    const ret = await medicationService.createMedication(medicineInfo);
+    const ret = await medicineService.creaateMedicine(medicineInfo);
     setIsLoading(false);
     if (ret.success) {
       toast("添加药品成功", "success");
@@ -209,28 +201,8 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
     onClose();
   };
 
-  const handleCreatePlan = async (planData: NewPlanData) => {
+  const handleCreatePlan = () => {
     try {
-      const date = new Date();
-      // 组装对象
-      const plan = {
-        id:
-          "" +
-          date.getFullYear() +
-          date.getMonth() +
-          date.getDay() +
-          date.getHours() +
-          date.getMinutes() +
-          date.getSeconds(),
-        name: planData.name,
-        startDate: planData.startDate,
-        endDate: planData.endDate,
-        status: "active",
-        progress: 0,
-        medicines: planData.medicines,
-      };
-
-      setPlans([plan, ...plans]);
       setShowCreatePlan(false);
       onClose();
     } catch (error) {

@@ -1,10 +1,10 @@
 import { X } from "lucide-react";
-import { Medication } from "@/services/medication";
+import { Medicine } from "@/services/medicineService";
 
 interface MedicineDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  medicine: Medication;
+  medicine: Medicine;
 }
 
 export function MedicineDetailModal({
