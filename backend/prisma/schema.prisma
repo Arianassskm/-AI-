@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  email     String     @unique
-  name      String?
-  password  String     @default("123456")
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  medicines Medicine[]
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  name         String?
+  password     String         @default("123456")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  medicines    Medicine[]
+  MedicinePlan MedicinePlan[]
 }
 
 model Chat {
@@ -24,29 +25,64 @@ model Chat {
 }
 
 model Medicine {
-  id               Int      @id @default(autoincrement())
-  name             String   
-  nameEn           String?  
-  manufacturer     String   
-  specification    String   
-  approvalNumber   String   
-  batchNumber      String   
-  expiryDate       String   // 改为字符串类型，格式为 YYYY-MM-DD
-  unit             String @default("片")   // 单位（如：片、粒、毫升等）
-  totalQuantity    Int @default(0)      // 总数量
-  currentQuantity  Int @default(0)      // 当前数量
-  storageCondition String   
-  packageInfo      String   
-  description      String?  
+  id               Int                  @id @default(autoincrement())
+  name             String
+  nameEn           String?
+  manufacturer     String
+  specification    String
+  approvalNumber   String
+  batchNumber      String
+  expiryDate       String // 改为字符串类型，格式为 YYYY-MM-DD
+  unit             String               @default("片") // 单位（如：片、粒、毫升等）
+  totalQuantity    Int                  @default(0) // 总数量
+  currentQuantity  Int                  @default(0) // 当前数量
+  storageCondition String
+  packageInfo      String
+  description      String?
   image            String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
   userId           Int
-  user             User     @relation(fields: [userId], references: [id])
-  deleted          Boolean  @default(false)
+  user             User                 @relation(fields: [userId], references: [id])
+  deleted          Boolean              @default(false)
   deletedAt        DateTime?
 
   @@index([userId])
   @@index([name])
   @@index([deleted])
+}
+
+// 用药计划
+model MedicinePlan {
+  id        Int                  @id @default(autoincrement())
+  name      String // 计划名称
+  startDate String // 开始日期
+  endDate   String // 结束日期
+  userId    Int // 关联用户
+  user      User                 @relation(fields: [userId], references: [id])
+  details   MedicinePlanDetail[] // 药品明细
+  status    String               @default("active") // 状态
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  deleted   Boolean              @default(false)
+  deletedAt DateTime?
+
+  @@index([userId])
+  @@index([deleted])
+}
+
+// 用药计划明细
+model MedicinePlanDetail {
+  id         Int          @id @default(autoincrement())
+  planId     Int // 关联计划
+  plan       MedicinePlan @relation(fields: [planId], references: [id])
+  medicineId Int // 关联药品
+  dosage     Int // 单次用量
+  frequency  String // 服用频次
+  timing     String // 服用方式
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([planId])
+  @@index([medicineId])
 }
