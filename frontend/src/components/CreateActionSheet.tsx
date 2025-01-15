@@ -190,6 +190,8 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
       return;
     }
 
+    medicineInfo.currentQuantity = Number(medicineInfo.totalQuantity);
+    medicineInfo.totalQuantity = Number(medicineInfo.totalQuantity);
     medicineInfo.userId = userInfo.id;
     const ret = await medicationService.createMedication(medicineInfo);
     setIsLoading(false);
