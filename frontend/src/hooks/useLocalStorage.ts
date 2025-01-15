@@ -47,11 +47,11 @@ export function useLocalStorageListener<T>(
           );
 
           // 使用 BroadcastChannel 进行跨页面通信
-          broadcastChannel.postMessage({
-            key,
-            value: valueToStore,
-            timestamp: Date.now(),
-          });
+          // broadcastChannel.postMessage({
+          //   key,
+          //   value: valueToStore,
+          //   timestamp: Date.now(),
+          // });
         }
       } catch (error) {
         console.warn(`Error setting localStorage key "${key}":`, error);
