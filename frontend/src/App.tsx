@@ -13,10 +13,11 @@ import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ToastProvider } from "@/hooks/useToast";
-import { getValue } from "@/hooks/useLocalStorage";
+import { useLocalStorageListener } from "@/hooks/useLocalStorage";
 
 export default function App() {
-  const isLoggedIn = !!getValue("accessToken");
+  const [accessToken] = useLocalStorageListener("accessToken", "");
+  const isLoggedIn = !!accessToken;
 
   return (
     <BrowserRouter>
