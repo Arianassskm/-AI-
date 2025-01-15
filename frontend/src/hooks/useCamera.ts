@@ -1,27 +1,45 @@
-import { RefObject, useCallback } from 'react';
+import { useCallback, useRef } from "react";
 
-export function useCamera(videoRef: RefObject<HTMLVideoElement>) {
+interface UseCameraOptions {
+  onError?: (error: Error) => void;
+}
+
+export function useCamera(
+  videoRef: React.RefObject<HTMLVideoElement>,
+  options: UseCameraOptions = {}
+) {
+  const streamRef = useRef<MediaStream | null>(null);
+
   const startCamera = useCallback(async () => {
     try {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }
+        video: {
+          facingMode: "environment",
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        },
       });
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        streamRef.current = stream;
       }
-      
-      return stream;
-    } catch (err) {
-      console.error('Camera access error:', err);
-      throw new Error('无法访问相机，请确保已授予相机权限');
+    } catch (error) {
+      console.error("Camera start error:", error);
+      options.onError?.(error as Error);
     }
-  }, [videoRef]);
+  }, [videoRef, options]);
 
   const stopCamera = useCallback(() => {
-    if (videoRef.current?.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
   }, [videoRef]);
@@ -29,20 +47,34 @@ export function useCamera(videoRef: RefObject<HTMLVideoElement>) {
   const takePhoto = useCallback(async () => {
     if (!videoRef.current) return null;
 
-    const canvas = document.createElement('canvas');
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
+    try {
+      const canvas = document.createElement("canvas");
+      const video = videoRef.current;
 
-    ctx.drawImage(videoRef.current, 0, 0);
-    return canvas.toDataURL('image/jpeg', 0.9);
-  }, [videoRef]);
+      // 设置canvas尺寸为视频的实际尺寸
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+
+      // 绘制当前视频帧
+      ctx.drawImage(video, 0, 0);
+
+      // 转换为base64
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+
+      return dataUrl;
+    } catch (error) {
+      console.error("Take photo error:", error);
+      options.onError?.(error as Error);
+      return null;
+    }
+  }, [videoRef, options]);
 
   return {
     startCamera,
     stopCamera,
-    takePhoto
+    takePhoto,
   };
 }

@@ -1,12 +1,19 @@
-import { useState, useRef, useEffect } from 'react';
-import { Camera, Image as ImageIcon, RotateCw, Crop, Check, ArrowLeft } from 'lucide-react';
-import { CaptureGuide, type CaptureStep } from './CaptureGuide';
-import { ImageEditor } from '../imageEditor/ImageEditor';
-import { useCamera } from '../../hooks/useCamera';
-import { validateImage } from '../../utils/validation';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '../ui/Button';
-import { cn } from '../../utils/cn';
+import { useState, useRef, useEffect } from "react";
+import {
+  Camera,
+  Image as ImageIcon,
+  RotateCw,
+  Crop,
+  Check,
+  ArrowLeft,
+} from "lucide-react";
+import { CaptureGuide, type CaptureStep } from "./CaptureGuide";
+import { ImageEditor } from "../imageEditor/ImageEditor";
+import { useCamera } from "../../hooks/useCamera";
+import { validateImage } from "../../utils/validation";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../ui/Button";
+import { cn } from "../../utils/cn";
 
 interface MultiPhotoCaptureProps {
   onCapture: (images: string[]) => void;
@@ -17,13 +24,13 @@ interface MultiPhotoCaptureProps {
   onStepChange?: (step: number) => void;
 }
 
-export function MultiPhotoCapture({ 
-  onCapture, 
+export function MultiPhotoCapture({
+  onCapture,
   onClose,
   maxPhotos = 4,
   captureSteps,
   currentStep = 1,
-  onStepChange
+  onStepChange,
 }: MultiPhotoCaptureProps) {
   const [showEditor, setShowEditor] = useState(false);
   const [currentPhoto, setCurrentPhoto] = useState<string | null>(null);
@@ -31,28 +38,29 @@ export function MultiPhotoCapture({
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-  
-  const { startCamera, stopCamera, takePhoto } = useCamera(videoRef);
+
+  // 修改 useCamera hook 的使用
+  const { startCamera, stopCamera, takePhoto } = useCamera(videoRef, {
+    onError: async (error) => {
+      console.error("摄像头错误:", error);
+      // 出错时尝试重新初始化
+      await startCamera();
+    },
+  });
 
   useEffect(() => {
-    const nav = document.querySelector('nav');
-    if (nav) nav.style.display = 'none';
+    const nav = document.querySelector("nav");
+    if (nav) nav.style.display = "none";
     startCamera();
     return () => {
       stopCamera();
-      if (nav) nav.style.display = 'block';
+      if (nav) nav.style.display = "block";
     };
   }, [startCamera, stopCamera]);
 
-  const handlePhotoCapture = async () => {
-    const photo = await takePhoto();
-    if (photo) {
-      setCurrentPhoto(photo);
-      setShowEditor(true);
-    }
-  };
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
 
@@ -79,24 +87,60 @@ export function MultiPhotoCapture({
         setCurrentPhoto(imageUrl);
         setShowEditor(true);
       } catch (err) {
-        console.error('Image processing error:', err);
+        console.error("Image processing error:", err);
       }
     }
 
-    event.target.value = '';
+    event.target.value = "";
   };
 
-  const handleEditorSave = (editedPhoto: string) => {
-    setCapturedPhotos(prev => [...prev, editedPhoto]);
+  // 修改 handleEditorSave 函数
+  const handleEditorSave = async (editedPhoto: string) => {
+    setCapturedPhotos((prev) => [...prev, editedPhoto]);
     if (onStepChange && currentStep < (captureSteps?.length || maxPhotos)) {
       onStepChange(currentStep + 1);
     }
     setShowEditor(false);
     setCurrentPhoto(null);
+
+    // 重新初始化摄像头
+    await startCamera();
   };
 
+  // 修改 handlePhotoCapture 函数
+  const handlePhotoCapture = async () => {
+    try {
+      const photo = await takePhoto();
+      if (photo) {
+        // 停止摄像头流
+        await stopCamera();
+        setCurrentPhoto(photo);
+        setShowEditor(true);
+      }
+    } catch (error) {
+      console.error("拍照出错:", error);
+      // 如果出错，尝试重新初始化摄像头
+      await startCamera();
+    }
+  };
+
+  useEffect(() => {
+    const nav = document.querySelector("nav");
+    if (nav) nav.style.display = "none";
+
+    // 初始化摄像头
+    startCamera().catch((error) => {
+      console.error("初始化摄像头失败:", error);
+    });
+
+    return () => {
+      stopCamera();
+      if (nav) nav.style.display = "block";
+    };
+  }, [startCamera, stopCamera]);
+
   const handlePhotoDelete = (index: number) => {
-    setCapturedPhotos(prev => prev.filter((_, i) => i !== index));
+    setCapturedPhotos((prev) => prev.filter((_, i) => i !== index));
     if (onStepChange && currentStep > 1) {
       onStepChange(currentStep - 1);
     }
@@ -104,18 +148,18 @@ export function MultiPhotoCapture({
 
   const handleComplete = () => {
     if (capturedPhotos.length > 0) {
-        onCapture(capturedPhotos);
+      onCapture(capturedPhotos);
     }
     // 检查是否在手机浏览器上
     if (!isMobileBrowser()) {
-        handleClose();
+      handleClose();
     }
-};
+  };
 
-// 检查是否在手机浏览器上的辅助函数
-const isMobileBrowser = () => {
+  // 检查是否在手机浏览器上的辅助函数
+  const isMobileBrowser = () => {
     return /Mobi|Android/i.test(navigator.userAgent);
-};
+  };
 
   const handleClose = () => {
     stopCamera();
@@ -166,7 +210,7 @@ const isMobileBrowser = () => {
               playsInline
               className="absolute inset-0 w-full h-full object-cover"
             />
-            
+
             {currentStepInfo && (
               <CaptureGuide
                 currentStep={currentStep}
