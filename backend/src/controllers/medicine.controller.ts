@@ -67,7 +67,7 @@ export class MedicineController {
       if (!medicine) {
         return res.status(404).json({ success: false, message: "药品未找到" });
       }
-      return res.json(medicine);
+      return res.json({ success: true, data: medicine });
     } catch (error) {
       return res
         .status(500)
@@ -79,7 +79,7 @@ export class MedicineController {
     try {
       const userId = req.user?.id;
       if (!userId) {
-        return res.status(401).json({ message: "未授权" });
+        return res.status(401).json({ success: false, message: "未授权" });
       }
 
       await medicineService.update(userId, {
@@ -89,7 +89,9 @@ export class MedicineController {
 
       return res.status(200).json({ success: true, message: "更新成功" });
     } catch (error) {
-      return res.status(500).json({ success: false, message: "服务器内部错误" });
+      return res
+        .status(500)
+        .json({ success: false, message: "服务器内部错误" });
     }
   }
 
@@ -101,9 +103,11 @@ export class MedicineController {
       }
 
       await medicineService.delete(userId, Number(req.params.id));
-      return res.status(204).send();
+      return res.status(200).json({ success: true, message: "删除成功" });
     } catch (error) {
-      return res.status(500).json({ success: false, message: "服务器内部错误" });
+      return res
+        .status(500)
+        .json({ success: false, message: "服务器内部错误" });
     }
   }
 }
