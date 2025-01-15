@@ -94,7 +94,7 @@ export function MedicationCabinetAssessment({
     try {
       let members: string = "";
       for (const member of familyMembers) {
-        members = members.concat(member.label + ":" + member.count + "人，");
+        members = members.concat(member.label + ":" + member.count + (member.label ==='宠物'? "只":"人，"));
       }
       console.log("Members Data:", members);
       let conditions: string = "";
