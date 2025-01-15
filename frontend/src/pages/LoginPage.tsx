@@ -113,15 +113,6 @@ export function LoginPage() {
 
               {error && <p className="text-sm text-red-500">{error}</p>}
 
-              <div className="flex justify-end">
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-rose-500 hover:text-rose-600"
-                >
-                  忘记密码？
-                </Link>
-              </div>
-
               <Button
                 type="submit"
                 className="w-full h-12 text-base bg-emerald-500 hover:bg-emerald-600 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
