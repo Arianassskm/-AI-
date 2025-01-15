@@ -271,7 +271,7 @@ export function pollingTask(accessToken: string, taskId: string) {
         } else if (ret.result.status === "FAILED") {
           clearInterval(interval);
           reject();
-        } else if (attempts >= 5) {
+        } else if (attempts >= 7) {
           clearInterval(interval);
           reject();
         }
