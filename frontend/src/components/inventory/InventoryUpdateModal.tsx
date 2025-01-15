@@ -4,6 +4,7 @@ import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { medicationService, Medication } from "@/services/medication";
+import { useToast } from "@/hooks/useToast";
 
 interface InventoryUpdateModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export function InventoryUpdateModal({
   onSuccess,
   medicine,
 }: InventoryUpdateModalProps) {
+  const { toast } = useToast();
   const [type, setType] = useState<"add" | "subtract">("add");
   const [quantity, setQuantity] = useState(1);
   const [reason, setReason] = useState("");
@@ -43,10 +45,12 @@ export function InventoryUpdateModal({
     const ret = await medicationService.updateMedication(medicine.id, medicine);
     console.log("Update data:", ret);
     setIsLoading(false);
-
     if (ret.success) {
+      toast("更新库存成功", "error");
       onSuccess();
       onClose();
+    } else {
+      toast(ret.message, "error");
     }
   };
 

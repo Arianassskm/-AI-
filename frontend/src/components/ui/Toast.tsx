@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/utils/cn";
 import { X } from "lucide-react";
+import { CheckCircle2, XCircle, AlertCircle, BellRing } from "lucide-react";
 
 export type ToastType = "success" | "error" | "info" | "warning";
 
@@ -11,6 +12,13 @@ interface ToastProps {
   onClose: () => void;
 }
 
+const ToastIcon = {
+  success: CheckCircle2,
+  error: XCircle,
+  info: AlertCircle,
+  warning: BellRing,
+};
+
 export function Toast({
   message,
   type = "info",
@@ -18,11 +26,12 @@ export function Toast({
   onClose,
 }: ToastProps) {
   const [isVisible, setIsVisible] = useState(true);
+  const Icon = ToastIcon[type];
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onClose, 300); // 等待动画结束后移除
+      setTimeout(onClose, 300);
     }, duration);
 
     return () => clearTimeout(timer);
@@ -31,24 +40,32 @@ export function Toast({
   return (
     <div
       className={cn(
-        "fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg transition-all duration-300",
+        "fixed left-1/2 top-4 -translate-x-1/2 z-[9999] flex items-center gap-3 px-4 py-3 rounded-lg shadow-xl transition-all duration-300 bg-white min-w-[320px] max-w-[90vw] border",
         {
-          "bg-emerald-500 text-white": type === "success",
-          "bg-red-500 text-white": type === "error",
-          "bg-blue-500 text-white": type === "info",
-          "bg-yellow-500 text-white": type === "warning",
+          "border-emerald-100": type === "success",
+          "border-red-100": type === "error",
+          "border-blue-100": type === "info",
+          "border-yellow-100": type === "warning",
           "translate-x-0 opacity-100": isVisible,
-          "translate-x-full opacity-0": !isVisible,
+          "translate-y-[-100%] opacity-0": !isVisible,
         }
       )}
     >
-      <span>{message}</span>
+      <Icon
+        className={cn("h-5 w-5 flex-shrink-0", {
+          "text-emerald-500": type === "success",
+          "text-red-500": type === "error",
+          "text-blue-500": type === "info",
+          "text-yellow-500": type === "warning",
+        })}
+      />
+      <span className="text-sm font-medium text-gray-700">{message}</span>
       <button
         onClick={() => {
           setIsVisible(false);
           setTimeout(onClose, 300);
         }}
-        className="text-white/80 hover:text-white"
+        className="ml-auto p-1 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-500"
       >
         <X className="h-4 w-4" />
       </button>

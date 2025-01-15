@@ -6,7 +6,6 @@ import { MedicineScanGuide } from "./scanner/MedicineScanGuide";
 import { PrescriptionScanGuide } from "./scanner/PrescriptionScanGuide";
 import { CreatePlanModal } from "./plans/CreatePlanModal";
 import MedicineConfirmationModal from "./MedicineConfirmationModal";
-import { MedicineInfo } from "./MedicineConfirmationModal";
 import { useNavigate } from "react-router-dom";
 import type { NewPlanData } from "./plans/CreatePlanModal";
 import { useLocalStorageListener } from "../hooks/useLocalStorage";
@@ -18,6 +17,9 @@ import {
   pollingTask,
   ExtractResult,
 } from "../services/ocrService";
+import { medicationService, Medication } from "@/services/medication";
+import { getValue } from "@/hooks/useLocalStorage";
+import { useToast } from "@/hooks/useToast";
 
 interface CreateActionSheetProps {
   isOpen: boolean;
@@ -38,6 +40,13 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
     expiryDate: "",
     batchNumber: "",
     packageInfo: "",
+    approvalNumber: "",
+    currentQuantity: 0,
+    totalQuantity: 0,
+    unit: "片",
+    storageCondition: "",
+    description: "",
+    image: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,81 +55,87 @@ export function CreateActionSheet({ isOpen, onClose }: CreateActionSheetProps) {
     []
   );
   const [token, setToken] = useLocalStorageListener<string>("ocr_token", "");
-  const [medicines, setMedicines] = useLocalStorageListener<MedicineInfo[]>(
-    "medicines",
-    []
-  );
-
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   async function extractPictures(token: string, capturedPhotos: string[]) {
     try {
-        setIsLoading(true);
-        const taskIds = await createExtractTasks(token, capturedPhotos);
-        const result = await fetchExtractResults(token, taskIds);
-        const data = processExtractResults(result);
+      setIsLoading(true);
+      const taskIds = await createExtractTasks(token, capturedPhotos);
+      const result = await fetchExtractResults(token, taskIds);
+      const data = processExtractResults(result);
 
-        console.log("传入", {
-            name: data["名称"],
-            specification: data["规格"],
-            manufacturer: data["生产企业"],
-            expiryDate: data["过期日期"],
-            batchNumber: data["批次"],
-            packageInfo: data["包装"],
-        });
+      // 跳转到药品确认/处方确认页面
+      setPassMedicineInfo({
+        name: data["名称"],
+        specification: data["规格"],
+        manufacturer: data["生产企业"],
+        expiryDate: data["有效期"],
+        batchNumber: data["批次"],
+        packageInfo: data["包装"],
+        approvalNumber: data["批准文号"],
+        currentQuantity: 1,
+        totalQuantity: 1,
+        unit: "片",
+        storageCondition: data["储存条件"],
+        description: data["用法用量"],
+        image: capturedPhotos.length > 0 ? capturedPhotos[0] : "",
+      });
 
-        // 跳转到药品确认/处方确认页面
-        setPassMedicineInfo({
-            name: data["名称"],
-            specification: data["规格"],
-            manufacturer: data["生产企业"],
-            expiryDate: data["过期日期"],
-            batchNumber: data["批次"],
-            packageInfo: data["包装"],
-        });
-
-        setShowMedicineConfirmation(true);
+      setShowMedicineConfirmation(true);
     } catch (error) {
-        console.error("Failed to extract pictures:", error);
+      toast("提取图片失败，请重试", "error");
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-}
+  }
 
-async function createExtractTasks(token: string, capturedPhotos: string[]): Promise<string[]> {
+  async function createExtractTasks(
+    token: string,
+    capturedPhotos: string[]
+  ): Promise<string[]> {
     const taskIds = [];
     for (const pic of capturedPhotos) {
-        const ret = await extractTask(token, pic, "440691ca34f59687432e3987f6241c1.jpg");
-        taskIds.push(ret.result.taskId);
+      const ret = await extractTask(
+        token,
+        pic,
+        new Date().getDate + "440691ca3.jpg"
+      );
+      taskIds.push(ret.result.taskId);
     }
     return taskIds;
-}
+  }
 
-async function fetchExtractResults(token: string, taskIds: string[]): Promise<ExtractResult[]> {
+  async function fetchExtractResults(
+    token: string,
+    taskIds: string[]
+  ): Promise<ExtractResult[]> {
     let result: ExtractResult[] = [];
     for (const task of taskIds) {
-        const ret = await pollingTask(token, task);
-        result = result.concat(ret);
+      const ret = await pollingTask(token, task);
+      result = result.concat(ret);
     }
     return result;
-}
+  }
 
-function processExtractResults(result: ExtractResult[]): Record<string, string> {
+  function processExtractResults(
+    result: ExtractResult[]
+  ): Record<string, string> {
     const data: Record<string, string> = {};
     result.forEach((item) => {
-        const keys = Object.keys(item.data.singleKey);
-        for (const key of keys) {
-            const value = item.data.singleKey[key];
-            let words = "";
-            for (const val of value) {
-                words = words.concat(val.word);
-            }
-            console.log(`Key: ${key}, Value:${words}`);
-            data[key] = words;
+      const keys = Object.keys(item.data.singleKey);
+      for (const key of keys) {
+        const value = item.data.singleKey[key];
+        let words = "";
+        for (const val of value) {
+          words = words.concat(val.word);
         }
+        console.log(`Key: ${key}, Value:${words}`);
+        data[key] = words;
+      }
     });
     return data;
-}
+  }
 
   const handleScanTypeSelect = (type: "medicine" | "prescription") => {
     setShowScanSelector(false);
@@ -159,36 +174,32 @@ function processExtractResults(result: ExtractResult[]): Record<string, string> 
         }
       }
     } catch (e) {
-      console.error("Failed to extract medicine data:", e);
+      toast("提取药品数据失败，请重试", "error");
     }
   };
 
-  const handleMedicineConfirmationConfirm = (medicineInfo, dosage) => {
-    console.log("添加到药品", medicineInfo, dosage);
-    const medi = {
-      ...medicineInfo,
-      id: medicines.length + 1,
-      progress: Math.floor(Math.random() * 100),
-      color: "bg-amber-500",
-      imageUrl:
-        "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=500&h=500&fit=crop",
-      currentQuantity: dosage.amount,
-      totalQuantity: Math.floor(Math.random() * 500),
-      unit: dosage.unit,
-    };
-    console.log(medi);
-    setPassMedicineInfo({
-      name: "",
-      specification: "",
-      manufacturer: "",
-      expiryDate: "",
-      batchNumber: "",
-      packageInfo: "",
-    });
+  const handleMedicineConfirmationConfirm = async (
+    medicineInfo: Medication
+  ) => {
+    console.log("添加到药品", medicineInfo);
+    const userInfo = getValue("userInfo");
+    if (userInfo === undefined || userInfo.id === undefined) {
+      toast("请先登录", "error");
+      setIsLoading(false);
+      navigate("/login");
+      return;
+    }
 
-    setShowMedicineConfirmation(false);
-    setMedicines([medi].concat(medicines));
-    onClose();
+    medicineInfo.userId = userInfo.id;
+    const ret = await medicationService.createMedication(medicineInfo);
+    setIsLoading(false);
+    if (ret.success) {
+      toast("添加药品成功", "success");
+      setShowMedicineConfirmation(false);
+      onClose();
+    } else {
+      toast(ret.message, "error");
+    }
   };
 
   const handleMedicineConfirmationClose = () => {

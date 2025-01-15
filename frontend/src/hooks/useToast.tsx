@@ -28,14 +28,21 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      {toasts.map((toast) => (
-        <Toast
-          key={toast.id}
-          message={toast.message}
-          type={toast.type}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
+      <div className="fixed inset-0 pointer-events-none z-[9999] flex flex-col items-center gap-2 p-4">
+        {toasts.map((toast, index) => (
+          <div
+            key={toast.id}
+            className="pointer-events-auto"
+            style={{ marginTop: `${index * 16}px` }}
+          >
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={() => removeToast(toast.id)}
+            />
+          </div>
+        ))}
+      </div>
     </ToastContext.Provider>
   );
 }

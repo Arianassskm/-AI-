@@ -145,15 +145,14 @@ interface AccurateResponse {
  */
 const MANIFEST: Manifest[] = [
   { parentKey: "", key: "名称", description: "" },
-  { parentKey: "", key: "适应症", description: "" },
-  { parentKey: "", key: "成份", description: "" },
-  { parentKey: "", key: "用法用量", description: "" },
-  { parentKey: "", key: "性状", description: "" },
   { parentKey: "", key: "规格", description: "" },
   { parentKey: "", key: "生产企业", description: "" },
+  { parentKey: "", key: "有效期", description: "" },
   { parentKey: "", key: "批次", description: "" },
-  { parentKey: "", key: "过期日期", description: "" },
   { parentKey: "", key: "包装", description: "" },
+  { parentKey: "", key: "批准文号", description: "" },
+  { parentKey: "", key: "储存条件", description: "" },
+  { parentKey: "", key: "用法用量", description: "" },
 ];
 
 /**

@@ -15,6 +15,7 @@ import { Badge } from "../components/ui/Badge";
 import { medicationService } from "../services/medication";
 import { getValue } from "@/hooks/useLocalStorage";
 import { compressImage } from "../utils/image.util";
+import { useToast } from "@/hooks/useToast";
 
 interface MedicineForm {
   name: string;
@@ -52,6 +53,7 @@ export function ManualEntryPage() {
     image: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -89,16 +91,20 @@ export function ManualEntryPage() {
     setIsLoading(true);
     const userInfo = getValue("userInfo");
     if (userInfo === undefined || userInfo.id === undefined) {
-      console.error("请先登录");
+      toast("请先登录", "error");
       setIsLoading(false);
       return;
     }
 
     form.userId = userInfo.id;
     const ret = await medicationService.createMedication(form);
-    console.log("添加药品", ret);
     setIsLoading(false);
-    navigate("/medication-cabinet");
+    if (ret.success) {
+      toast("添加药品成功", "success");
+      navigate("/medication-cabinet");
+    } else {
+      toast(ret.message, "error");
+    }
   };
 
   return (
