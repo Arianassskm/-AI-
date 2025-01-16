@@ -99,7 +99,7 @@ class RequestHttp {
 // 创建请求实例
 export const defHttp = new RequestHttp({
   baseURL: "/backend-api",
-  timeout: 10000,
+  timeout: 50000,
   requestOptions: {
     withToken: true, // 默认携带 token
   },

@@ -1,20 +1,16 @@
 import { useState } from "react";
 import { GuideTypeSelector } from "./GuideTypeSelector";
 import { UserContextForm } from "./UserContextForm";
-import type {
-  GuideType,
-  MedicationInfo,
-  UserContext,
-  MedicationGuide,
-} from "../../types/medicationGuide";
-import { useAI } from "../../hooks/useAI";
+import type { MedicationInfo, UserContext } from "../../types/medicationGuide";
+import { useAI } from "@/hooks/useAI";
+import { useOpenAI } from "@/hooks/useOpenAI";
 import LoadingOverlay from "../loading/LoadingOverlay";
 
 export function MedicationGuideFlow() {
   const [selectedMedication, setSelectedMedication] =
     useState<MedicationInfo | null>(null);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
-  const { generateMedicationGuide } = useAI();
+  const { generateMedicationGuide } = useOpenAI();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSelectType = (type: string) => {
@@ -29,6 +25,7 @@ export function MedicationGuideFlow() {
   };
 
   const handleSubmitContext = async (context: UserContext) => {
+    console.log("handleSubmitContext", context);
     if (!selectedMedication) return;
 
     setIsLoading(true);

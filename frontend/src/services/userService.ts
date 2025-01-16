@@ -10,7 +10,7 @@ export interface AuthResponse {
   error: AuthError | null;
 }
 
-export const authService = {
+export const userService = {
   /**
    * 用户注册
    */
@@ -61,6 +61,36 @@ export const authService = {
       return {
         success: false,
         message: err instanceof Error ? err.message : "登录失败",
+      };
+    }
+  },
+
+  /**
+   * 获取用户信息
+   */
+  async getUser(): Promise<Response<User>> {
+    try {
+      const response = await defHttp.get("/users/getUser");
+      return response;
+    } catch (err) {
+      return {
+        success: false,
+        message: err instanceof Error ? err.message : "获取用户信息失败",
+      };
+    }
+  },
+
+  /**
+   * 更新用户药箱评分
+   */
+  async updateScore(score: number) {
+    try {
+      const response = await defHttp.post("/users/updateScore", { score });
+      return response;
+    } catch (err) {
+      return {
+        success: false,
+        message: err instanceof Error ? err.message : "更新评分失败",
       };
     }
   },

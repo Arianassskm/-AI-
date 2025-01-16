@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { authService } from "@/services/auth";
+import { userService } from "@/services/userService";
 import { useLocalStorageListener } from "@/hooks/useLocalStorage";
 
 export function LoginPage() {
@@ -29,7 +29,7 @@ export function LoginPage() {
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const ret = await authService.signIn(email, password);
+    const ret = await userService.signIn(email, password);
 
     if (ret.success) {
       setUserInfo(ret.data);

@@ -1,4 +1,5 @@
 import { AI_CONFIG } from "../config/aiConfig";
+import { Medicine } from "@/services/medicineService";
 
 interface Message {
   role: "user" | "assistant";
@@ -203,4 +204,30 @@ export function generatePillboxPrompt(
 
 如需专业建议，请随时咨询我们的药师团队。
 祝您和家人身体健康！`;
+}
+
+/**
+ * 药箱评估提示词
+ * @param medicines
+ * @returns
+ */
+export function generateAssessmentOfPillboxesPrompt(medicines: Medicine[]) {
+  let currentMedicines = "";
+  for (const medicine of medicines) {
+    if (medicine.currentQuantity < 0) {
+      continue;
+    }
+    currentMedicines += `${medicine.name}-${medicine.currentQuantity}-${medicine.unit},`;
+  }
+
+  return `作为一个专业的医疗AI助手,请为以下用药情况提供专业的指导建议:
+  我目前现有的药品有：${currentMedicines !== "" ? currentMedicines : "无"}
+  请根据我提供的信息，对我的备药进行简单的打分(1~100分)，请求必须返回评分结果。
+  结果格式：
+  评分：{评分结果}
+  评分理由：{评分理由}
+  并为我推荐当前季节还可以备哪些药品。
+  推荐药品格式：
+  {药品名称}-{药品规格}-{药品功能}-{药品价格}-{推荐原因}
+  请用专业但易懂的语言回答。`;
 }

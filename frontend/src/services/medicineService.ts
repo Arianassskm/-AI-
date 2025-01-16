@@ -1,6 +1,6 @@
 import { defHttp, Response } from "@/utils/request";
 
-export interface Medication {
+export interface Medicine {
   id: number;
   name: string;
   nameEn?: string;
@@ -19,7 +19,7 @@ export interface Medication {
   updatedAt: string;
 }
 
-export interface CreateMedicationDto {
+export interface CreateMedicineDto {
   name: string;
   nameEn?: string;
   manufacturer: string;
@@ -37,11 +37,11 @@ export interface CreateMedicationDto {
 
 const API_BASE_URL = "/medicines";
 
-export const medicationService = {
+export const medicineService = {
   /**
    * 获取所有药品
    */
-  async getAllMedications(): Promise<Response<Medication[]>> {
+  async getAllMedicines(): Promise<Response<Medicine[]>> {
     try {
       const response = await defHttp.get(`${API_BASE_URL}/findAll`);
       return response;
@@ -56,11 +56,11 @@ export const medicationService = {
   /**
    * 创建新药品
    */
-  async createMedication(
-    medication: CreateMedicationDto
-  ): Promise<Response<Medication>> {
+  async createMedicine(
+    medicine: CreateMedicineDto
+  ): Promise<Response<Medicine>> {
     try {
-      const response = await defHttp.post(`${API_BASE_URL}/create`, medication);
+      const response = await defHttp.post(`${API_BASE_URL}/create`, medicine);
       return response;
     } catch (err) {
       return {
@@ -73,9 +73,9 @@ export const medicationService = {
   /**
    * 更新药品信息
    */
-  async updateMedication(
+  async updateMedicine(
     id: number,
-    updates: Partial<CreateMedicationDto>
+    updates: Partial<CreateMedicineDto>
   ): Promise<Response> {
     try {
       return await defHttp.put(`${API_BASE_URL}/update/${id}`, updates);
@@ -92,7 +92,7 @@ export const medicationService = {
   /**
    * 删除药品
    */
-  async deleteMedication(id: number): Promise<Response> {
+  async deleteMedicine(id: number): Promise<Response> {
     try {
       const response = await fetch(`${API_BASE_URL}/delete/${id}`, {
         method: "DELETE",

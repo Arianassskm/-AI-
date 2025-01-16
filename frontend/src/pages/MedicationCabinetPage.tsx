@@ -9,6 +9,11 @@ import { InventoryUpdateModal } from "../components/inventory/InventoryUpdateMod
 import { Input } from "../components/ui/Input";
 import { medicineService, Medicine } from "@/services/medicineService";
 import { useToast } from "@/hooks/useToast";
+import { AssessmentOfPillboxes } from "@/components/AssessmentOfPillboxes";
+import { useOpenAI } from "@/hooks/useOpenAI";
+import LoadingOverlay from "@/components/loading/LoadingOverlay";
+import { userService } from "@/services/userService";
+import { getValue, useLocalStorageListener } from "@/hooks/useLocalStorage";
 
 const categories = [
   { id: "all", icon: "🏥", title: "全部", count: 25 },
@@ -29,6 +34,11 @@ export function MedicationCabinetPage() {
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { assessmentOfPillboxes } = useOpenAI();
+  const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useLocalStorageListener("userInfo", null);
+  const [score, setScore] = useState(getValue("userInfo")?.score || 0);
 
   const fetchMedicines = async () => {
     try {
@@ -49,8 +59,37 @@ export function MedicationCabinetPage() {
     fetchMedicines();
   }, []);
 
-  const handleImprove = () => {
-    alert("正在分析您的药箱，即将为您提供改进建议...");
+  const handleImprove = async () => {
+    setIsLoading(true);
+    try {
+      const ret = await assessmentOfPillboxes();
+      const regex = /评分：{(\d+)\s*分}/;
+      const match = ret.match(regex);
+      const score = match ? parseInt(match[1]) : 0;
+      console.log("score", score);
+      setAnalysisResult(ret);
+      setIsLoading(false);
+      setIsAssessmentOpen(true);
+      if (score) {
+        setScore(score);
+        const ret = await userService.updateScore(score);
+        if (ret.success) {
+          // 重新刷新userInfo
+          const userInfo = await userService.getUser();
+          if (userInfo.success) {
+            setUserInfo(userInfo.data);
+          }
+        }
+      }
+    } catch (error) {
+      setIsLoading(false);
+      toast("评估失败", "error");
+    }
+  };
+
+  const handleCloseAssessment = () => {
+    setIsAssessmentOpen(false);
+    setAnalysisResult("");
   };
 
   const handleUpdateInventory = (id: string) => {
@@ -93,7 +132,7 @@ export function MedicationCabinetPage() {
             <ArrowLeft className="w-6 h-6" />
           </button>
         </div>
-        <MedicationCabinetScore score={70} onImprove={handleImprove} />
+        <MedicationCabinetScore score={score} onImprove={handleImprove} />
       </div>
 
       <div className="max-w-2xl mx-auto px-4 -mt-4 pb-20">
@@ -145,6 +184,14 @@ export function MedicationCabinetPage() {
           medicine={medicines.find((m) => m.id === selectedMedication)!}
         />
       )}
+
+      <AssessmentOfPillboxes
+        isOpen={isAssessmentOpen}
+        result={analysisResult}
+        onClose={handleCloseAssessment}
+      />
+
+      <LoadingOverlay isLoading={isLoading} />
     </div>
   );
 }

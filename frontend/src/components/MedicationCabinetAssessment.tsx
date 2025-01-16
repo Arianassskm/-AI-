@@ -7,7 +7,8 @@ import {
   Box,
   DollarSign,
 } from "lucide-react";
-import { useAI } from "../hooks/useAI";
+import { useAI } from "@/hooks/useAI";
+import { useOpenAI } from "@/hooks/useOpenAI";
 import LoadingOverlay from "./loading/LoadingOverlay";
 
 interface MedicationCabinetAssessmentProps {
@@ -55,7 +56,7 @@ export function MedicationCabinetAssessment({
 
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
-  const { pillboxSssessments, loading, error } = useAI();
+  const { pillboxSssessments, loading, error } = useOpenAI();
   const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
@@ -94,7 +95,12 @@ export function MedicationCabinetAssessment({
     try {
       let members: string = "";
       for (const member of familyMembers) {
-        members = members.concat(member.label + ":" + member.count + (member.label ==='宠物'? "只":"人，"));
+        members = members.concat(
+          member.label +
+            ":" +
+            member.count +
+            (member.label === "宠物" ? "只" : "人，")
+        );
       }
       console.log("Members Data:", members);
       let conditions: string = "";

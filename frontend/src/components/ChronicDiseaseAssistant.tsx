@@ -3,7 +3,8 @@ import { X, Activity, Calendar, FileText, MessageCircle } from "lucide-react";
 import { VoiceInput } from "./VoiceInput";
 import { StepNavigation } from "./StepNavigation";
 import { MedicationHistorySelector } from "./MedicationHistorySelector";
-import { useAI } from "../hooks/useAI";
+import { useAI } from "@/hooks/useAI";
+import { useOpenAI } from "@/hooks/useOpenAI";
 import LoadingOverlay from "./loading/LoadingOverlay";
 
 interface ChronicDiseaseAssistantProps {
@@ -32,7 +33,7 @@ export function ChronicDiseaseAssistant({
     { id: "其他", name: "其他", icon: "➕" },
   ];
 
-  const { chronicDiseaseFollowup } = useAI();
+  const { chronicDiseaseFollowup } = useOpenAI();
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 

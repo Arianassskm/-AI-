@@ -5,7 +5,7 @@ import { Eye, EyeOff, User, Lock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/useToast";
 import { Checkbox } from "@/components/ui/Checkbox";
-import { authService } from "@/services/auth";
+import { userService } from "@/services/userService";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ export function RegisterPage() {
 
     setIsRegistering(true);
     try {
-      const ret = await authService.signUp(email, password);
+      const ret = await userService.signUp(email, password);
       if (ret.success) {
         toast("注册成功！", "success");
         navigate("/login");

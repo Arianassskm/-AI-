@@ -1,6 +1,7 @@
 import { X, PillIcon, Coffee, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useAI } from "../hooks/useAI";
+import { useAI } from "@/hooks/useAI";
+import { useOpenAI } from "@/hooks/useOpenAI";
 import LoadingOverlay from "./loading/LoadingOverlay";
 
 interface MedicationInteractionModalProps {
@@ -19,7 +20,7 @@ export function MedicationInteractionModal({
   const [medicationTwo, setMedicationTwo] = useState("");
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
 
-  const { analyzeMedicationInteraction, loading, error } = useAI();
+  const { analyzeMedicationInteraction, loading, error } = useOpenAI();
   const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
