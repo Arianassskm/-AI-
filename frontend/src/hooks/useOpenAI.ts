@@ -79,6 +79,8 @@ export function useOpenAI() {
     physicalCondition: string
   ) => {
     try {
+      setLoading(true);
+      setError(null);
       const prompt = generateDiseasePrompt(
         diseaseType,
         medicines,
@@ -108,6 +110,8 @@ export function useOpenAI() {
     condition: string
   ) => {
     try {
+      setLoading(true);
+      setError(null);
       const prompt = generatePillboxPrompt(
         familyMember,
         budget,
@@ -132,6 +136,8 @@ export function useOpenAI() {
 
   const assessmentOfPillboxes = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const userMedicineRet = await medicineService.getAllMedicines();
       let medicines: Medicine[] = [];
       if (userMedicineRet.success) {
@@ -155,6 +161,44 @@ export function useOpenAI() {
     }
   };
 
+  const askQuestion = async (messages: object) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const ret = await defHttp.post("openai/ask", {
+        messages,
+      });
+      return ret;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "生成失败，请稍后重试");
+      return {
+        success: false,
+        message: "豆包AI调用失败，请稍后重试",
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const chatByPrompt = async (prompt: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const ret = await defHttp.post(OPENAI_BASE_URL, {
+        prompt,
+      });
+      return ret;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "生成失败，请稍后重试");
+      return {
+        success: false,
+        message: "生成失败，请稍后重试",
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     error,
@@ -163,5 +207,7 @@ export function useOpenAI() {
     chronicDiseaseFollowup,
     pillboxSssessments,
     assessmentOfPillboxes,
+    askQuestion,
+    chatByPrompt,
   };
 }

@@ -1,20 +1,21 @@
-import { useRef, useEffect } from 'react';
-import { useAIChat } from '../hooks/useAIChat';
-import { AIChatHeader } from './chat/AIChatHeader';
-import { AIChatMessage } from './chat/AIChatMessage';
-import { AIChatInput } from './chat/AIChatInput';
-import { AIChatFeatures } from './chat/AIChatFeatures';
+import { useRef, useEffect } from "react";
+import { useAIChat } from "../hooks/useAIChat";
+import { AIChatHeader } from "./chat/AIChatHeader";
+import { AIChatMessage } from "./chat/AIChatMessage";
+import { AIChatInput } from "./chat/AIChatInput";
+import { AIChatFeatures } from "./chat/AIChatFeatures";
+import { useOpenAIChat } from "@/hooks/useOpenAIChat";
 
 interface AIChatExpandedProps {
   onClose: () => void;
 }
 
 export function AIChatExpanded({ onClose }: AIChatExpandedProps) {
-  const { messages, loading, error, sendMessage } = useAIChat();
+  const { messages, loading, error, sendMessage } = useOpenAIChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export function AIChatExpanded({ onClose }: AIChatExpandedProps) {
                   AI
                 </div>
                 <div>
-                  <h1 className="text-xl font-semibold mb-1">公主殿下，我是康康</h1>
+                  <h1 className="text-xl font-semibold mb-1">您好，我是康康</h1>
                   <p className="text-sm text-gray-600">
                     我是你的智能用药管家，我能帮助你解决所有用药问题
                   </p>
@@ -51,13 +52,13 @@ export function AIChatExpanded({ onClose }: AIChatExpandedProps) {
           </div>
         ) : (
           <div className="py-4">
-            {messages.map(message => (
+            {messages.map((message) => (
               <AIChatMessage key={message.id} message={message} />
             ))}
             <div ref={messagesEndRef} />
           </div>
         )}
-        
+
         {error && (
           <div className="px-4 py-3 mx-4 mb-4 bg-red-50 text-red-700 rounded-lg text-sm">
             {error}
