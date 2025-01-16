@@ -37,4 +37,24 @@ router.post("/chat", async (req, res) => {
   }
 });
 
+router.post("/ask", async (req, res) => {
+  try {
+    const messages = req.body.messages;
+    const completion = await openai.chat.completions.create({
+      model: OPENAI_API_MODEL,
+      messages: messages,
+    });
+
+    return res.json({
+      success: true,
+      data: completion.choices[0]?.message?.content,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "豆包AI调用失败，请稍后重试",
+    });
+  }
+});
+
 export { router as openaiRouter };
