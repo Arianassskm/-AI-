@@ -12,6 +12,7 @@ router.post("/register", userController.register);
 
 // 需要认证的路由
 router.use(authMiddleware);
-router.get("/getUsers", userController.getUsers);
+router.get("/getUser", userController.getUser);
+router.post("/updateScore", userController.updateScore);
 
 export default router;

@@ -27,10 +27,27 @@ export class UserService {
     return isValid ? user : null;
   }
 
+  async findById(id: number) {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) return {};
+
+    return user;
+  }
+
   async refreshToken(userId: number) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
     return user;
+  }
+
+  async updateScore(userId: number, score: number) {
+    return prisma.user.update({
+      where: { id: userId },
+      data: { score },
+    });
   }
 }

@@ -5,6 +5,7 @@ import userRouter from "./routes/user.routes";
 import medicineRoutes from "./routes/medicine.routes";
 import { healthRouter } from "./routes/health.routes";
 import { medicinePlanRouter } from "./routes/medicinePlan.routes";
+import { openaiRouter } from "./routes/openai.routes";
 import { prisma } from "./config/database";
 
 const app = express();
@@ -18,6 +19,7 @@ app.use("/api/users", userRouter);
 app.use("/api/medicines", medicineRoutes);
 app.use("/api/health", healthRouter);
 app.use("/api/medicationPlans", medicinePlanRouter);
+app.use("/api/openai", openaiRouter);
 
 // 确保在应用退出时关闭数据库连接
 process.on("beforeExit", async () => {

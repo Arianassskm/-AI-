@@ -12,16 +12,11 @@ model User {
   email        String         @unique
   name         String?
   password     String         @default("123456")
+  score        Int            @default(0) // 药箱评分
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   medicines    Medicine[]
   MedicinePlan MedicinePlan[]
-}
-
-model Chat {
-  id        Int      @id @default(autoincrement())
-  message   String
-  createdAt DateTime @default(now())
 }
 
 model Medicine {

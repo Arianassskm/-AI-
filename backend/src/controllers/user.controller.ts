@@ -65,16 +65,14 @@ export class UserController {
     }
   };
 
-  getUsers = async (req: Request, res: Response) => {
+  getUser = async (req: Request, res: Response) => {
     try {
-      const { email, password } = req.query;
-      if (typeof email !== "string" || typeof password !== "string") {
-        return res
-          .status(400)
-          .json({ success: false, message: "邮箱和密码参数错误" });
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ success: false, message: "未授权" });
       }
-      const users = await userService.findByEmailNPwd(email, password);
-      return res.json({ success: true, data: users, message: "获取用户成功" });
+      const user = await userService.findById(userId);
+      return res.json({ success: true, data: user, message: "获取用户成功" });
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
@@ -87,6 +85,21 @@ export class UserController {
         success: true,
         message: "注册成功",
       });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
+  updateScore = async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ success: false, message: "未授权" });
+      }
+
+      const { score } = req.body;
+      await userService.updateScore(userId, score);
+      return res.json({ success: true, message: "更新评分成功" });
     } catch (error) {
       return res.status(500).json({ success: false, message: error.message });
     }
