@@ -10,7 +10,12 @@ export function generateCalendarData(numWeeks: number = 4): CalendarData {
     date.setDate(today.getDate() - i);
     days.push({
       date: date.toISOString().split("T")[0],
-      isActive: Math.random() < 0.3, // Randomly set some days as active for demonstration
+      type:
+        Math.random() < 0.3
+          ? "active"
+          : Math.random() > 0.3
+          ? "forget"
+          : "inactive",
     });
   }
 
@@ -19,7 +24,7 @@ export function generateCalendarData(numWeeks: number = 4): CalendarData {
     weeks.push({ days: days.slice(i, i + 7) });
   }
 
-  const activeDays = days.filter((day) => day.isActive).length;
+  const activeDays = days.filter((day) => day.type === "active").length;
 
   return {
     weeks,
