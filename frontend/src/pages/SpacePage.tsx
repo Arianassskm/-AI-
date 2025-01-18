@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { PlanCard } from "../components/PlanCard";
 import { MedicineCard } from "../components/MedicineCard";
 import { SpaceHeader } from "../components/SpaceHeader";
+import { EmergencyGuide } from "../components/EmergencyGuide";
 import { medicineService, Medicine } from "@/services/medicineService";
 import {
   medicinePlanService,
@@ -106,7 +107,7 @@ export function SpacePage() {
         </section>
 
         {/* Medicine Cabinet Section */}
-        <section>
+        <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               家庭药箱
@@ -140,6 +141,9 @@ export function SpacePage() {
               </div>
             )}
           </div>
+        </section>
+        <section>
+          <EmergencyGuide />
         </section>
       </div>
     </div>

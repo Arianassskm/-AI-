@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { AIHeader } from '../components/ai/AIHeader';
-import { AISearchInput } from '../components/ai/AISearchInput';
-import { AIFeatureGrid } from '../components/ai/AIFeatureGrid';
-import { EmergencyGuide } from '../components/EmergencyGuide';
-import { AIChatExpanded } from '../components/AIChatExpanded';
+import { useState } from "react";
+import { AIHeader } from "../components/ai/AIHeader";
+import { AISearchInput } from "../components/ai/AISearchInput";
+import { AIFeatureGrid } from "../components/ai/AIFeatureGrid";
+import { AIChatExpanded } from "../components/AIChatExpanded";
 
 export function AIPage() {
   const [showChat, setShowChat] = useState(false);
@@ -14,7 +13,6 @@ export function AIPage() {
         <AIHeader onSearch={() => setShowChat(true)} />
         <AISearchInput onClick={() => setShowChat(true)} />
         <AIFeatureGrid />
-        <EmergencyGuide />
       </div>
 
       {showChat && <AIChatExpanded onClose={() => setShowChat(false)} />}
