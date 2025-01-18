@@ -17,6 +17,7 @@ export class UserController {
       }
 
       const user = await userService.findByEmailNPwd(email, password);
+      console.log("用户", user);
       if (!user) {
         return res
           .status(401)
@@ -32,6 +33,7 @@ export class UserController {
           id: user.id,
           email: user.email,
           name: user.name,
+          score: user.score,
         },
       });
     } catch (error) {
