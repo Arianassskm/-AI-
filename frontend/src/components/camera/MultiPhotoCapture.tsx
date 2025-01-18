@@ -1,12 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  Camera,
-  Image as ImageIcon,
-  RotateCw,
-  Crop,
-  Check,
-  ArrowLeft,
-} from "lucide-react";
+import { Image as ImageIcon, Check, ArrowLeft } from "lucide-react";
 import { CaptureGuide, type CaptureStep } from "./CaptureGuide";
 import { ImageEditor } from "../imageEditor/ImageEditor";
 import { useCamera } from "../../hooks/useCamera";
@@ -14,6 +7,7 @@ import { validateImage } from "../../utils/validation";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/Button";
 import { cn } from "../../utils/cn";
+import { useToast } from "../../hooks/useToast";
 
 interface MultiPhotoCaptureProps {
   onCapture: (images: string[]) => void;
@@ -32,9 +26,11 @@ export function MultiPhotoCapture({
   currentStep = 1,
   onStepChange,
 }: MultiPhotoCaptureProps) {
+  const { toast } = useToast();
   const [showEditor, setShowEditor] = useState(false);
   const [currentPhoto, setCurrentPhoto] = useState<string | null>(null);
   const [capturedPhotos, setCapturedPhotos] = useState<string[]>([]);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -42,16 +38,28 @@ export function MultiPhotoCapture({
   // 修改 useCamera hook 的使用
   const { startCamera, stopCamera, takePhoto } = useCamera(videoRef, {
     onError: async (error) => {
-      console.error("摄像头错误:", error);
-      // 出错时尝试重新初始化
-      await startCamera();
+      if (error.name === "NotAllowedError") {
+        setCameraError(
+          "未获得摄像头权限，请使用相册上传图片或授权摄像头访问。"
+        );
+        toast("未获得摄像头权限，请使用相册上传", "error");
+      } else if (error.name === "NotFoundError") {
+        setCameraError("未检测到可用的摄像头设备。");
+        toast("未检测到摄像头设备", "error");
+      } else {
+        setCameraError("摄像头初始化失败，请使用相册上传图片。");
+        toast("摄像头初始化失败", "error");
+      }
     },
   });
 
   useEffect(() => {
     const nav = document.querySelector("nav");
     if (nav) nav.style.display = "none";
-    startCamera();
+
+    // 初始化摄像头
+    startCamera().catch((error) => {});
+
     return () => {
       stopCamera();
       if (nav) nav.style.display = "block";
@@ -124,21 +132,6 @@ export function MultiPhotoCapture({
     }
   };
 
-  useEffect(() => {
-    const nav = document.querySelector("nav");
-    if (nav) nav.style.display = "none";
-
-    // 初始化摄像头
-    startCamera().catch((error) => {
-      console.error("初始化摄像头失败:", error);
-    });
-
-    return () => {
-      stopCamera();
-      if (nav) nav.style.display = "block";
-    };
-  }, [startCamera, stopCamera]);
-
   const handlePhotoDelete = (index: number) => {
     setCapturedPhotos((prev) => prev.filter((_, i) => i !== index));
     if (onStepChange && currentStep > 1) {
@@ -208,7 +201,10 @@ export function MultiPhotoCapture({
               ref={videoRef}
               autoPlay
               playsInline
-              className="absolute inset-0 w-full h-full object-cover"
+              className={cn(
+                "absolute inset-0 w-full h-full object-cover",
+                cameraError && "hidden"
+              )}
             />
 
             {currentStepInfo && (
@@ -266,17 +262,19 @@ export function MultiPhotoCapture({
                 相册
               </Button>
 
-              <button
-                onClick={handlePhotoCapture}
-                disabled={capturedPhotos.length >= maxPhotos}
-                className={cn(
-                  "w-16 h-16 rounded-full relative",
-                  "before:content-[''] before:absolute before:inset-0 before:rounded-full",
-                  "before:border-4 before:border-white before:scale-110",
-                  "after:content-[''] after:absolute after:inset-2 after:rounded-full after:bg-white",
-                  "disabled:opacity-50 disabled:cursor-not-allowed"
-                )}
-              />
+              {!cameraError && (
+                <button
+                  onClick={handlePhotoCapture}
+                  disabled={capturedPhotos.length >= maxPhotos}
+                  className={cn(
+                    "w-16 h-16 rounded-full relative",
+                    "before:content-[''] before:absolute before:inset-0 before:rounded-full",
+                    "before:border-4 before:border-white before:scale-110",
+                    "after:content-[''] after:absolute after:inset-2 after:rounded-full after:bg-white",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
+                />
+              )}
 
               <Button
                 variant="outline"
