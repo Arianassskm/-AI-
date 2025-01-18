@@ -17,7 +17,6 @@ export class UserController {
       }
 
       const user = await userService.findByEmailNPwd(email, password);
-      console.log("用户", user);
       if (!user) {
         return res
           .status(401)
