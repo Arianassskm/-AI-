@@ -4,13 +4,13 @@ const prisma = new PrismaClient();
 
 interface CreatePlanInput {
   name: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   userId: number;
   details: {
     medicineId: number;
     dosage: number;
-    frequency: number;
+    frequency: string;
     timing: string;
   }[];
 }
