@@ -5,13 +5,15 @@ import { AIChatMessage } from "./chat/AIChatMessage";
 import { AIChatInput } from "./chat/AIChatInput";
 import { AIChatFeatures } from "./chat/AIChatFeatures";
 import { useOpenAIChat } from "@/hooks/useOpenAIChat";
+import { useOpenAIChatPreSet } from "@/hooks/useOpenAIChatPreSet";
 
 interface AIChatExpandedProps {
   onClose: () => void;
 }
 
 export function AIChatExpanded({ onClose }: AIChatExpandedProps) {
-  const { messages, loading, error, sendMessage } = useOpenAIChat();
+  const { messages, loading, error, sendMessage, sendRoleSetting } =
+    useOpenAIChatPreSet();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -21,6 +23,10 @@ export function AIChatExpanded({ onClose }: AIChatExpandedProps) {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const handleFeatureClick = (feature: string) => {
+    sendRoleSetting(feature);
+  };
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-teal-100/80 via-blue-100/80 to-purple-100/80 backdrop-blur-md z-50 flex flex-col">
@@ -44,7 +50,7 @@ export function AIChatExpanded({ onClose }: AIChatExpandedProps) {
               </div>
             </div>
 
-            <AIChatFeatures />
+            <AIChatFeatures onFeatureClick={handleFeatureClick} />
 
             <p className="text-sm text-gray-600 text-center">
               试着就用药问题向我交流

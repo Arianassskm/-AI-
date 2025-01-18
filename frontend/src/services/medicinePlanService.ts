@@ -15,7 +15,7 @@ export interface MedicinePlanDetail {
   medicineId: number;
   medicine: Medicine;
   dosage: number; // 单次用量
-  frequency: number; // 每日服用频次
+  frequency: string; // 每日服用频次
   timing: MedicineTiming;
   createdAt: string;
   updatedAt: string;
@@ -43,7 +43,7 @@ export interface CreateMedicinePlanInput {
   details: {
     medicineId: number;
     dosage: number;
-    frequency: number;
+    frequency: string;
     timing: MedicineTiming;
   }[];
 }

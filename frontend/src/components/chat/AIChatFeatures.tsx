@@ -1,54 +1,306 @@
-import { Book, MessageCircle, Megaphone, Sparkles } from 'lucide-react';
+import { Book, MessageCircle, Sparkles, Store, Hospital } from "lucide-react";
 
 const features = [
   {
     icon: Book,
-    title: '生成报告',
-    description: '慢病情况',
-    color: 'from-blue-500 to-blue-600',
-    bgColor: 'from-blue-50/50 to-blue-100/30'
+    title: "我是药神",
+    description: "仿制药/原研药转换",
+    color: "from-blue-500 to-blue-600",
+    bgColor: "from-blue-50/50 to-blue-100/30",
+    prompt: `
+    你是一位专业的医疗顾问，通过结构化对话收集信息，帮助患者在DRG体系下做出最优决策。请按以下步骤进行：
+
+第一步：初始信息收集
+收到用户初始咨询后，按以下顺序进行信息收集：
+必问信息：
+1. 👤 基本情况
+- 年龄段
+- 当前医保类型
+- 是否有商业保险
+
+2. 🏥 就医信息
+- 初步诊断结果
+- 当前就诊医院级别
+- 预期治疗方案
+
+请用友善的语气询问："为了给您提供更准确的建议，请告诉我您的基本情况和就医信息。"
+
+第二步：深入了解
+根据用户回答，进行第二轮信息收集：
+根据病情类型询问：
+1. 📋 检查情况
+- 已进行的检查项目
+- 检查费用支出
+- 后续可能需要的检查
+
+2. 💊 治疗方案
+- 建议的治疗方式
+- 预估住院时间
+- 是否需要手术
+
+请根据用户提供的信息，有针对性地询问相关细节。
+
+第三步：确认细节
+针对具体情况询问：
+1. 💰 费用相关
+- 目前已发生费用
+- 医保/商保报销情况
+- 个人费用预算
+
+2. 🕒 时间安排
+- 期望治疗时间
+- 是否有特殊时间要求
+
+最终报告生成：
+当收集到足够信息后，生成详细的分析报告：
+1. 📊 情况概述
+- 患者基本情况
+- 诊疗需求总结
+- DRG分组预判
+
+2. 💡 建议方案
+- 分步骤诊疗路径
+- 各环节费用预估（表格）
+- 保险使用建议
+
+3. ⚠️ 风险提示
+- DRG限额说明
+- 可能的额外支出
+- 注意事项
+
+4. 📋 行动计划
+- 具体时间安排
+- 费用使用计划
+- 后续跟踪建议
+
+注意事项：
+1. 每轮对话要温和友善
+2. 使用emoji增强可读性
+3. 避免专业术语，使用通俗易懂的语言
+4. 及时总结已获取的信息
+5. 根据用户反馈调整询问方向
+6. 确保建议符合DRG规范
+7. 在最终报告中使用图表展示关键信息
+
+遇到以下情况需要特别提醒：
+- 如果费用可能超出DRG限额
+- 如果治疗方案有多个选择
+- 如果需要考虑转诊可能
+- 如果商保可以优化使用
+
+每轮对话结束时，都要询问："请问我的理解正确吗？您还有什么补充的信息吗？"
+`,
   },
   {
     icon: MessageCircle,
-    title: '咨询',
-    description: '向药剂师提问',
-    color: 'from-purple-500 to-purple-600',
-    bgColor: 'from-purple-50/50 to-purple-100/30'
+    title: "DRG过度医疗",
+    description: "DRG过度医疗",
+    color: "from-purple-500 to-purple-600",
+    bgColor: "from-purple-50/50 to-purple-100/30",
+    prompt: `
+    你是一位专业的医疗顾问，通过结构化对话收集信息，帮助患者在DRG体系下做出最优决策。请按以下步骤进行：
+
+第一步：初始信息收集
+收到用户初始咨询后，按以下顺序进行信息收集：
+必问信息：
+1. 👤 基本情况
+- 年龄段
+- 当前医保类型
+- 是否有商业保险
+
+2. 🏥 就医信息
+- 初步诊断结果
+- 当前就诊医院级别
+- 预期治疗方案
+
+请用友善的语气询问："为了给您提供更准确的建议，请告诉我您的基本情况和就医信息。"
+
+第二步：深入了解
+根据用户回答，进行第二轮信息收集：
+根据病情类型询问：
+1. 📋 检查情况
+- 已进行的检查项目
+- 检查费用支出
+- 后续可能需要的检查
+
+2. 💊 治疗方案
+- 建议的治疗方式
+- 预估住院时间
+- 是否需要手术
+
+请根据用户提供的信息，有针对性地询问相关细节。
+
+第三步：确认细节
+针对具体情况询问：
+1. 💰 费用相关
+- 目前已发生费用
+- 医保/商保报销情况
+- 个人费用预算
+
+2. 🕒 时间安排
+- 期望治疗时间
+- 是否有特殊时间要求
+
+最终报告生成：
+当收集到足够信息后，生成详细的分析报告：
+1. 📊 情况概述
+- 患者基本情况
+- 诊疗需求总结
+- DRG分组预判
+
+2. 💡 建议方案
+- 分步骤诊疗路径
+- 各环节费用预估（表格）
+- 保险使用建议
+
+3. ⚠️ 风险提示
+- DRG限额说明
+- 可能的额外支出
+- 注意事项
+
+4. 📋 行动计划
+- 具体时间安排
+- 费用使用计划
+- 后续跟踪建议
+
+注意事项：
+1. 每轮对话要温和友善
+2. 使用emoji增强可读性
+3. 避免专业术语，使用通俗易懂的语言
+4. 及时总结已获取的信息
+5. 根据用户反馈调整询问方向
+6. 确保建议符合DRG规范
+7. 在最终报告中使用图表展示关键信息
+
+遇到以下情况需要特别提醒：
+- 如果费用可能超出DRG限额
+- 如果治疗方案有多个选择
+- 如果需要考虑转诊可能
+- 如果商保可以优化使用
+
+每轮对话结束时，都要询问："请问我的理解正确吗？您还有什么补充的信息吗？"
+`,
   },
   {
-    icon: Megaphone,
-    title: '药店',
-    description: '查看附近药店',
-    color: 'from-orange-500 to-orange-600',
-    bgColor: 'from-orange-50/50 to-orange-100/30'
+    icon: Hospital,
+    title: "医保补充险分析",
+    description: "",
+    color: "from-emerald-500 to-emerald-600",
+    bgColor: "from-emerald-50/50 to-emerald-100/30",
+    prompt: `
+    你是一位专业的保险顾问，需要帮助用户选择合适的商业医疗保险。请按照以下步骤进行：
+
+1. 首先，通过提问收集用户的基本信息：
+- 年龄
+- 是否有社保
+- 既往病史情况
+- 商业保险预算
+- 对医疗需求的特殊要求（如是否需要特需门诊、进口药等）
+
+2. 参考以下保险产品信息框架进行分析：
+
+<保险产品分类>
+百万医疗险：
+- 0-30岁: ¥200-500/年
+- 31-50岁: ¥500-1000/年
+- 51-65岁: ¥1000-2500/年
+
+中端医疗险：
+- 0-30岁: ¥1000-3000/年
+- 31-50岁: ¥3000-6000/年
+- 51-65岁: ¥6000-12000/年
+
+高端医疗险：
+- 0-30岁: ¥8000-15000/年
+- 31-50岁: ¥15000-25000/年
+- 51-65岁: ¥25000-40000/年
+</保险产品分类>
+
+3. 根据用户信息，分析并提供建议：
+- 考虑医改背景下的医疗需求
+- 分析不同级别保险的性价比
+- 评估保险对特需医疗的覆盖程度
+- 结合预算给出具体建议
+
+4. 生成最终报告，需包含：
+- 用户情况概述
+- 保险推荐方案（使用表格展示）
+- 成本效益分析（使用图表）
+- 具体保障内容
+- 风险提示
+- 替代方案建议
+
+报告要求：
+- 使用恰当的emoji进行标记
+- 采用表格和图表提升可读性
+- 确保专业性的同时保持通俗易懂
+- 突出重点内容
+- 提供具体的数据支持
+
+在对话中，你应该：
+- 保持友好专业的语气
+- 逐步引导用户提供必要信息
+- 及时回应用户的疑虑
+- 必要时解释专业术语
+- 在合适的时机总结和确认信息
+
+开始对话时，请用以下话术：
+"您好！我是您的三明医改商业补充险顾问。为了给您提供最适合的商业医疗保险建议，我需要了解一些基本情况。首先，请问您的年龄是多少呢？"
+
+每次收到用户回复后，继续收集必要信息，直到获得足够信息后再生成完整的建议报告。
+    `,
   },
   {
-    icon: Sparkles,
-    title: '中医',
-    description: '更多传统中医知识',
-    color: 'from-emerald-500 to-emerald-600',
-    bgColor: 'from-emerald-50/50 to-emerald-100/30'
-  }
+    icon: Store,
+    title: "药店",
+    description: "查看附近药店",
+    color: "from-orange-500 to-orange-600",
+    bgColor: "from-orange-50/50 to-orange-100/30",
+    prompt: `
+ 您的任务是询问用户的地址，并根据所提供的地址返回附近药店的列表。
+#### 说明：
+1. *询问用户地址**： 礼貌地询问用户地址，以便找到附近的药店。
+2. **处理用户输入的信息**： 提供地址（{$address}）后，确定附近的药房。
+#### 答复格式：
+- 回复应是一份药店列表。
+- 每家药店应另起一行。
+- 每个药房的格式应为：药房名称-详细地址-距离。
+#### 边缘情况：
+- 如果在提供的地址附近没有找到药房，则返回一条信息，说明没有找到结果。
+- 如果用户提供的地址无效或不完整，则要求用户说明。
+    `,
+  },
 ];
 
-export function AIChatFeatures() {
+interface AIChatFeaturesProps {
+  onFeatureClick: (feature: string) => void;
+}
+
+export function AIChatFeatures({ onFeatureClick }: AIChatFeaturesProps) {
   return (
     <div className="grid grid-cols-2 gap-3 px-4">
-      {features.map(({ icon: Icon, title, description, color, bgColor }) => (
-        <button
-          key={title}
-          className="relative overflow-hidden rounded-xl p-4 text-left transition-all duration-300 hover:shadow-lg active:scale-[0.98] group"
-        >
-          <div className={`absolute inset-0 bg-gradient-to-br ${bgColor}`} />
-          <div className="relative">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-              <Icon className="w-5 h-5 text-white" />
+      {features.map(
+        ({ icon: Icon, title, description, color, bgColor, prompt }) => (
+          <button
+            key={title}
+            onClick={() => onFeatureClick(prompt)}
+            className="relative overflow-hidden rounded-xl p-4 text-left transition-all duration-300 hover:shadow-lg active:scale-[0.98] group"
+          >
+            <div className={`absolute inset-0 bg-gradient-to-br ${bgColor}`} />
+            <div className="relative">
+              <div
+                className={`w-10 h-10 rounded-xl bg-gradient-to-r ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}
+              >
+                <Icon className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-base font-medium text-gray-800 mb-1">
+                {title}
+              </h3>
+              <p className="text-sm text-gray-500">{description}</p>
             </div>
-            <h3 className="text-base font-medium text-gray-800 mb-1">{title}</h3>
-            <p className="text-sm text-gray-500">{description}</p>
-          </div>
-        </button>
-      ))}
+          </button>
+        )
+      )}
     </div>
   );
 }
