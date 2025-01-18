@@ -10,6 +10,9 @@ import {
 import { useAI } from "@/hooks/useAI";
 import { useOpenAI } from "@/hooks/useOpenAI";
 import LoadingOverlay from "./loading/LoadingOverlay";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import "../../assets/markdown.css";
 
 interface MedicationCabinetAssessmentProps {
   isOpen: boolean;
@@ -84,15 +87,8 @@ export function MedicationCabinetAssessment({
   };
 
   const handleSubmit = async () => {
-    const assessment = {
-      familyMembers,
-      budget,
-      storageSpace,
-      storageConditions: Array.from(selectedConditions),
-    };
-    console.log("Assessment Data:", assessment);
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       let members: string = "";
       for (const member of familyMembers) {
         members = members.concat(
@@ -102,9 +98,8 @@ export function MedicationCabinetAssessment({
             (member.label === "宠物" ? "只" : "人，")
         );
       }
-      console.log("Members Data:", members);
       let conditions: string = "";
-      for (const condition of storageConditions) {
+      for (const condition of selectedConditions) {
         console.log(condition);
         conditions = conditions.concat(
           condition.label + condition.description + ","
@@ -115,9 +110,11 @@ export function MedicationCabinetAssessment({
         members,
         budget + "",
         storageSpace + "",
-        conditions
+        conditions ? conditions : "未知"
       );
+
       setIsLoading(false);
+      console.log(result);
       setAnalysisResult(result);
     } catch (error) {
       setIsLoading(false);
@@ -156,9 +153,10 @@ export function MedicationCabinetAssessment({
 
         {analysisResult && (
           <div className="p-4 bg-blue-50 rounded-xl max-h-96 overflow-auto">
-            <p className="text-sm text-gray-600 whitespace-pre-line">
-              {analysisResult}
-            </p>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              children={analysisResult}
+            ></ReactMarkdown>
           </div>
         )}
 

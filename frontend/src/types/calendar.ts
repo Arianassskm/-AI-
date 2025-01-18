@@ -1,6 +1,6 @@
 export interface DayData {
   date: string; // YYYY-MM-DD format
-  isActive: boolean;
+  type: string;
 }
 
 export interface WeekData {

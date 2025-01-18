@@ -1,48 +1,48 @@
-import { useState } from 'react';
-import { Pill, Activity, Heart, FileText } from 'lucide-react';
-import { AIFeatureCard } from './AIFeatureCard';
-import { MedicationCabinetAssessment } from '../MedicationCabinetAssessment';
-import { ChronicDiseaseAssistant } from '../ChronicDiseaseAssistant';
-import { MedicationInteractionModal } from '../MedicationInteractionModal';
-import { MedicationGuideModal } from '../MedicationGuideModal';
+import { useState } from "react";
+import { Pill, Activity, Heart, FileText } from "lucide-react";
+import { AIFeatureCard } from "./AIFeatureCard";
+import { MedicationCabinetAssessment } from "../MedicationCabinetAssessment";
+import { ChronicDiseaseAssistant } from "../ChronicDiseaseAssistant";
+import { MedicationInteractionModal } from "../MedicationInteractionModal";
+import { MedicationGuideModal } from "../MedicationGuideModal";
 
 const features = [
   {
-    id: 'cabinet',
+    id: "cabinet",
     icon: Pill,
-    title: '药箱评估',
-    description: '定制专属家庭药箱',
-    color: 'text-primary-600',
-    bgColor: 'bg-surface-50',
-    gradient: 'from-surface-50 to-surface-100'
+    title: "药箱定制",
+    description: "定制专属家庭药箱",
+    color: "text-primary-600",
+    bgColor: "bg-surface-50",
+    gradient: "from-surface-50 to-surface-100",
   },
   {
-    id: 'chronic',
+    id: "chronic",
     icon: Heart,
-    title: '慢病助手',
-    description: '智能管理慢性病',
-    color: 'text-primary-600',
-    bgColor: 'bg-surface-50',
-    gradient: 'from-surface-50 to-surface-100'
+    title: "慢病助手",
+    description: "智能管理慢性病",
+    color: "text-primary-600",
+    bgColor: "bg-surface-50",
+    gradient: "from-surface-50 to-surface-100",
   },
   {
-    id: 'interaction',
+    id: "interaction",
     icon: Activity,
-    title: '用药评估',
-    description: '药物相互作用分析',
-    color: 'text-primary-600',
-    bgColor: 'bg-surface-50',
-    gradient: 'from-surface-50 to-surface-100'
+    title: "用药评估",
+    description: "药物相互作用分析",
+    color: "text-primary-600",
+    bgColor: "bg-surface-50",
+    gradient: "from-surface-50 to-surface-100",
   },
   {
-    id: 'guide',
+    id: "guide",
     icon: FileText,
-    title: '用药指导',
-    description: '专业用药指导',
-    color: 'text-primary-600',
-    bgColor: 'bg-surface-50',
-    gradient: 'from-surface-50 to-surface-100'
-  }
+    title: "用药指导",
+    description: "专业用药指导",
+    color: "text-primary-600",
+    bgColor: "bg-surface-50",
+    gradient: "from-surface-50 to-surface-100",
+  },
 ];
 
 export function AIFeatureGrid() {
@@ -55,16 +55,16 @@ export function AIFeatureGrid() {
   const handleCardClick = (id: string) => {
     setSelectedId(id);
     switch (id) {
-      case 'cabinet':
+      case "cabinet":
         setShowAssessment(true);
         break;
-      case 'chronic':
+      case "chronic":
         setShowChronicAssistant(true);
         break;
-      case 'interaction':
+      case "interaction":
         setShowInteractionModal(true);
         break;
-      case 'guide':
+      case "guide":
         setShowGuideModal(true);
         break;
     }
