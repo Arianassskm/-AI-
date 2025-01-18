@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlanManagementHeader } from "../components/plans/PlanManagementHeader";
 import { PlanList } from "../components/plans/PlanList";
 import { PlanFilters } from "../components/plans/PlanFilters";
@@ -13,8 +13,11 @@ import {
   type FilterOptions,
 } from "../components/plans/PlanFilterModal";
 import { CreatePlanModal } from "../components/plans/CreatePlanModal";
+import { useLocalStorageListener } from "@/hooks/useLocalStorage";
+import { useNavigate } from "react-router-dom";
 
 export function MedicationPlanManagementPage() {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<
     "all" | "active" | "completed"
   >("all");
@@ -27,6 +30,17 @@ export function MedicationPlanManagementPage() {
     dateRange: "all",
   });
   const [showCreatePlan, setShowCreatePlan] = useState<boolean>(false);
+
+  const [isShowTab, setIsShowTab] = useLocalStorageListener("isShowTab", true);
+
+  useEffect(() => {
+    setIsShowTab(false);
+  }, []);
+
+  const handleBack = () => {
+    navigate(-1);
+    setIsShowTab(true);
+  };
 
   const hanleOpenCreatePlan = () => {
     setShowCreatePlan(true);
@@ -52,7 +66,7 @@ export function MedicationPlanManagementPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <PlanManagementHeader />
+      <PlanManagementHeader onBack={handleBack} />
 
       <div className="max-w-2xl mx-auto px-4 pb-24">
         <PlanStats />

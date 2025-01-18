@@ -18,8 +18,7 @@ import { ToastProvider } from "@/hooks/useToast";
 import { useLocalStorageListener } from "@/hooks/useLocalStorage";
 
 export default function App() {
-  const [accessToken] = useLocalStorageListener("accessToken", "");
-  const isLoggedIn = !!accessToken;
+  const [isShowTab] = useLocalStorageListener("isShowTab", true);
 
   return (
     <BrowserRouter>
@@ -52,7 +51,7 @@ export default function App() {
                 <Route path="/store" element={<StorePage />} />
               </Routes>
             </main>
-            {isLoggedIn && <Navigation />}
+            {isShowTab && <Navigation />}
           </div>
         </AuthGuard>
       </ToastProvider>

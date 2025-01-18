@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
@@ -20,6 +20,11 @@ export function LoginPage() {
     "refreshToken",
     ""
   );
+  const [isShowTab, setIsShowTab] = useLocalStorageListener("isShowTab", true);
+
+  useEffect(() => {
+    setIsShowTab(false);
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

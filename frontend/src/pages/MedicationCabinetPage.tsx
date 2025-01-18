@@ -39,6 +39,7 @@ export function MedicationCabinetPage() {
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useLocalStorageListener("userInfo", null);
   const [score, setScore] = useState(getValue("userInfo")?.score || 0);
+  const [isShowTab, setIsShowTab] = useLocalStorageListener("isShowTab", true);
 
   const fetchMedicines = async () => {
     try {
@@ -56,8 +57,14 @@ export function MedicationCabinetPage() {
   };
 
   useEffect(() => {
+    setIsShowTab(false);
     fetchMedicines();
   }, []);
+
+  const handleBack = () => {
+    setIsShowTab(true);
+    navigate(-1);
+  };
 
   const handleImprove = async () => {
     setIsLoading(true);
@@ -128,7 +135,7 @@ export function MedicationCabinetPage() {
       <div className="relative bg-gradient-to-r from-blue-500 to-blue-600">
         <div className="absolute top-4 left-4 z-10">
           <button
-            onClick={() => navigate(-1)}
+            onClick={handleBack}
             className="p-2 rounded-full bg-white/10 backdrop-blur-sm text-white"
           >
             <ArrowLeft className="w-6 h-6" />
