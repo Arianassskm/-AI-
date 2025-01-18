@@ -19,7 +19,6 @@ class RequestHttp {
         const token = getValue("accessToken");
         const requestOptions = (config as RequestConfig).requestOptions;
 
-        console.log("token: ", token);
         // 根据配置决定是否添加 token
         if (token && requestOptions?.withToken !== false) {
           config.headers.Authorization = `Bearer ${token}`;

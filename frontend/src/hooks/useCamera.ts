@@ -29,7 +29,6 @@ export function useCamera(
         streamRef.current = stream;
       }
     } catch (error) {
-      console.error("Camera start error:", error);
       options.onError?.(error as Error);
     }
   }, [videoRef, options]);
