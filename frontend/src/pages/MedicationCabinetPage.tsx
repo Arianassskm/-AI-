@@ -63,7 +63,7 @@ export function MedicationCabinetPage() {
     setIsLoading(true);
     try {
       const ret = await assessmentOfPillboxes();
-      const regex = /评分：{(\d+)\s*分}/;
+      const regex = /评分：(\d+)\s*分/;
       const match = ret.match(regex);
       const score = match ? parseInt(match[1]) : 0;
       console.log("score", score);
@@ -92,8 +92,10 @@ export function MedicationCabinetPage() {
     setAnalysisResult("");
   };
 
-  const handleUpdateInventory = (id: string) => {
-    setSelectedMedication(id);
+  const handleUpdateInventory = (name: string) => {
+    // setSelectedMedication(id);
+    // 跳转至商城搜索结果
+    navigate(`/search?keyword=${name}`);
   };
 
   const handleUpdateSuccess = async () => {
@@ -169,7 +171,7 @@ export function MedicationCabinetPage() {
             <InventoryCard
               key={medication.id}
               medication={medication}
-              onUpdate={() => handleUpdateInventory(medication.id)}
+              onUpdate={() => handleUpdateInventory(medication.name)}
             />
           ))}
         </div>

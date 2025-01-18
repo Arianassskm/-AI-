@@ -11,6 +11,8 @@ import { ManualEntryPage } from "./pages/ManualEntryPage";
 import { ReminderPage } from "./pages/ReminderPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { SearchPage } from "./pages/SearchPage";
+import { StorePage } from "./pages/StorePage";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ToastProvider } from "@/hooks/useToast";
 import { useLocalStorageListener } from "@/hooks/useLocalStorage";
@@ -46,6 +48,8 @@ export default function App() {
                 <Route path="/reminder" element={<ReminderPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/store" element={<StorePage />} />
               </Routes>
             </main>
             {isLoggedIn && <Navigation />}
